@@ -2,16 +2,17 @@ package main
 
 import (
 	"errors"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
+
+	"github.com/durban.zhang/wiki/controllers"
 )
 
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
-var templates = template.Must(template.ParseFiles("template/edit.html", "template/view.html"))
+// var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html"))
 
 // Page 页面结构
 type Page struct {
@@ -37,12 +38,12 @@ func loadPage(t string) (*Page, error) {
 	}, nil
 }
 
-func renderTemplate(w http.ResponseWriter, templateName string, p *Page) {
-	err := templates.ExecuteTemplate(w, templateName+".html", p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
+// func renderTemplate(w http.ResponseWriter, templateName string, p *Page) {
+// 	err := templates.ExecuteTemplate(w, templateName+".html", p)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 	}
+// }
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	m := validPath.FindStringSubmatch(r.URL.Path)
@@ -66,45 +67,45 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	}
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
+// func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
+// 	p, err := loadPage(title)
+// 	if err != nil {
+// 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+// 		return
+// 	}
 
-	renderTemplate(w, "view", p)
-}
+// 	renderTemplate(w, "view", p)
+// }
 
-func editHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		p = &Page{Title: title}
-	}
+// func editHandler(w http.ResponseWriter, r *http.Request, title string) {
+// 	p, err := loadPage(title)
+// 	if err != nil {
+// 		p = &Page{Title: title}
+// 	}
 
-	renderTemplate(w, "edit", p)
-}
+// 	renderTemplate(w, "edit", p)
+// }
 
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
-	body := r.FormValue("body")
-	p := &Page{
-		Title: title,
-		Body:  []byte(body),
-	}
+// func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+// 	body := r.FormValue("body")
+// 	p := &Page{
+// 		Title: title,
+// 		Body:  []byte(body),
+// 	}
 
-	err := p.save()
+// 	err := p.save()
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
 
-	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-}
+// 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
+// }
 
 func main() {
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
+	http.HandleFunc("/view/", makeHandler(controllers.ArticleView))
+	http.HandleFunc("/save/", makeHandler(controllers.ArticleSave))
+	http.HandleFunc("/edit/", makeHandler(controllers.ArticleEdit))
 	log.Fatal(http.ListenAndServe(":8090", nil))
 }
