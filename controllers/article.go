@@ -1,7 +1,7 @@
 package controllers
 
 import "net/http"
-import "github.com/durban.zhang/wiki/helpers"
+import "github.com/durban89/wiki/helpers"
 
 // ArticleView 查看文章
 func ArticleView(w http.ResponseWriter, r *http.Request, title string) {

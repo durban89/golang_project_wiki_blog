@@ -7,12 +7,10 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/durban.zhang/wiki/controllers"
+	"github.com/durban89/wiki/controllers"
 )
 
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
-
-// var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html"))
 
 // Page 页面结构
 type Page struct {
@@ -37,13 +35,6 @@ func loadPage(t string) (*Page, error) {
 		Body:  body,
 	}, nil
 }
-
-// func renderTemplate(w http.ResponseWriter, templateName string, p *Page) {
-// 	err := templates.ExecuteTemplate(w, templateName+".html", p)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 	}
-// }
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	m := validPath.FindStringSubmatch(r.URL.Path)
