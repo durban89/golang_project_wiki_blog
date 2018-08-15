@@ -1,7 +1,11 @@
 package controllers
 
-import "net/http"
-import "github.com/durban89/wiki/helpers"
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/durban89/wiki/helpers"
+)
 
 // ArticleView 查看文章
 func ArticleView(w http.ResponseWriter, r *http.Request, title string) {
@@ -16,7 +20,16 @@ func ArticleView(w http.ResponseWriter, r *http.Request, title string) {
 
 // ArticleSave 存储文章
 func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
+	r.ParseForm()
+	fmt.Println("author:", r.Form["author"])
+
 	body := r.FormValue("body")
+	author := r.FormValue("author")
+	method := r.Method
+
+	fmt.Println("author ", author)
+	fmt.Println("method: ", method)
+
 	p := &helpers.Page{
 		Title: title,
 		Body:  []byte(body),
