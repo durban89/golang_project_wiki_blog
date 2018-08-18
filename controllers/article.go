@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/durban89/wiki/helpers"
 )
@@ -29,11 +30,11 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 	// 	return
 	// }
 
-	// if len(r.Form.Get("author")) == 0 {
-	// 	fmt.Println("author is empty")
-	// 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-	// 	return
-	// }
+	if len(r.Form.Get("author")) == 0 {
+		fmt.Println("author is empty")
+		http.Redirect(w, r, "/view/"+title, http.StatusFound)
+		return
+	}
 
 	// getint, geterr := strconv.Atoi(r.Form.Get("author"))
 	// if geterr != nil {
@@ -48,6 +49,21 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 	// 	return
 	// }
 	// fmt.Println("get author:", r.Form.Get("author"))
+
+	// 中文
+	if m, _ := regexp.MatchString("^[\\x{4e00}-\\x{9fa5}]+$", r.Form.Get("author")); m {
+		fmt.Println("含有中文")
+	}
+
+	// 英文字母
+	if m, _ := regexp.MatchString("^[a-zA-Z]+$", r.Form.Get("author")); m {
+		fmt.Println("含有英文字母")
+	}
+
+	// 邮箱地址
+	if m, _ := regexp.MatchString(`^([\w\.\_]{2,10})@(\w{1,}).([a-z]{2,4})$`, r.Form.Get("author")); m {
+		fmt.Println("正确的邮箱地址")
+	}
 
 	body := r.FormValue("body")
 	author := r.FormValue("author")
