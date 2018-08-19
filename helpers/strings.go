@@ -4,6 +4,19 @@ import (
 	"regexp"
 )
 
+// ValidateSliceIntersection 交集
+func ValidateSliceIntersection(sourceSlice []string, targetSlice []string) []string {
+	var slice3 []string
+	for _, slice1 := range sourceSlice {
+		for _, slice2 := range targetSlice {
+			if slice1 == slice2 {
+				slice3 = append(slice3, slice2)
+			}
+		}
+	}
+	return slice3
+}
+
 // ValidateInArray 元素是否在指定的数组中
 func ValidateInArray(slice []string, str string) bool {
 	for _, v := range slice {

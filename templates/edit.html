@@ -40,6 +40,33 @@
             <input class="form-control" name="ctime" id="ctime" value=""/>
           </div>
 
+          <div class="checkbox">
+            <label for="category">文章状态</label>
+          </div>
+          <div class="radio">
+            <label>
+              <input type="radio" name="openStatus" id="openStatus1" value="1" checked> 打开
+            </label>
+            <label>
+              <input type="radio" name="openStatus" id="openStatus2" value="2"> 关闭
+            </label>
+          </div>
+
+          <div class="checkbox">
+            <label for="category">频道</label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" name="channel" value="news"> 新闻
+            </label>
+            <label>
+              <input type="checkbox" name="channel" value="technology"> 科技
+            </label>
+            <label>
+              <input type="checkbox" name="channel" value="other"> 其他
+            </label>
+          </div>
+
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
