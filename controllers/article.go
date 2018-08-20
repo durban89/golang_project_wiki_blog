@@ -15,6 +15,8 @@ func ArticleView(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 
+	// p.Script = "<script>alert('you have been pwned')</script>"
+	// p.Html = template.HTML("<script>alert('you have been pwned')</script>")
 	helpers.RenderTemplate(w, "view", p)
 }
 
@@ -39,24 +41,24 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 
 	if len(r.Form.Get("author")) == 0 {
 		fmt.Println("author is empty")
-		http.Redirect(w, r, "/view/"+title, http.StatusFound)
-		return
 	}
 
 	slice := []string{"php", "java", "golang"}
 	if !helpers.ValidateInArray(slice, category) {
 		fmt.Println("category not in slice")
-		http.Redirect(w, r, "/view/"+title, http.StatusFound)
-		return
 	}
 
 	chennelSlice := []string{"news", "technology", "other"}
 	a := helpers.ValidateSliceIntersection(channel, chennelSlice)
 	if len(a) == 0 {
 		fmt.Println("channel is empty")
-		http.Redirect(w, r, "/view/"+title, http.StatusFound)
-		return
 	}
+
+	// XSS Example
+	// fmt.Println("author: ", template.HTMLEscapeString(r.Form.Get("author"))) // print at server side
+	// fmt.Println("author: ", template.HTMLEscapeString(r.Form.Get("author")))
+	// template.HTMLEscape(w, []byte(r.Form.Get("author"))) // responded to clients
+	// return
 
 	p := &helpers.Page{
 		Title: title,
