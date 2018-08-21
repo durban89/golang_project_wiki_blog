@@ -11,6 +11,7 @@ type Page struct {
 	Body   []byte
 	Script string
 	Html   template.HTML
+	Token  string
 }
 
 // Save 存储数据

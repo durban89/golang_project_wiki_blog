@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/durban89/wiki/helpers"
 )
@@ -29,6 +33,7 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 	category := r.FormValue("category")
 	ctime := r.FormValue("ctime")
 	openStatus := r.FormValue("openStatus")
+	token := r.FormValue("token")
 	channel := r.Form["channel"]
 	method := r.Method
 
@@ -38,6 +43,7 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 	fmt.Println("method: ", method)
 	fmt.Println("openStatus: ", openStatus)
 	fmt.Println("channels: ", channel)
+	fmt.Println("token: ", token)
 
 	if len(r.Form.Get("author")) == 0 {
 		fmt.Println("author is empty")
@@ -60,6 +66,15 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 	// template.HTMLEscape(w, []byte(r.Form.Get("author"))) // responded to clients
 	// return
 
+	// 重复提交 Example
+	// if token != "" {
+	// 	// check token validity
+	// 	fmt.Println("To Validate Token")
+	// } else {
+	// 	// give error if no token
+	// 	fmt.Println("Token is empty")
+	// }
+
 	p := &helpers.Page{
 		Title: title,
 		Body:  []byte(body),
@@ -70,8 +85,6 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 
 	if !helpers.ValidateInArray(openStatusSlice, openStatus) {
 		fmt.Println("openStatus not in openStatusSlice")
-		http.Redirect(w, r, "/view/"+title, http.StatusFound)
-		return
 	}
 
 	err := p.Save()
@@ -91,5 +104,11 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request, title string) {
 		p = &helpers.Page{Title: title}
 	}
 
+	crutime := time.Now().Unix()
+	h := md5.New()
+	io.WriteString(h, strconv.FormatInt(crutime, 10))
+	token := fmt.Sprintf("%x", h.Sum(nil))
+
+	p.Token = token
 	helpers.RenderTemplate(w, "edit", p)
 }
