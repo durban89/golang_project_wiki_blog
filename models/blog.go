@@ -4,16 +4,18 @@ import (
 	"database/sql"
 
 	"github.com/durban89/wiki/db"
-	// Register MySQL
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // Conn 连接
 var Conn *sql.DB
 
 func init() {
+	// MySQL
 	// Conn = db.DB
-	Conn = db.SQLiteDB
+	// SQLite
+	// Conn = db.SQLiteDB
+	// PostgreSQL
+	Conn = db.PostgreSQLDB
 }
 
 // Query 获取一条数据
