@@ -7,12 +7,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// DB Conn
-var DB *sql.DB
+// MySQLDB Conn
+var MySQLDB *sql.DB
 
 func init() {
 	db, err := sql.Open("mysql", "root:123456@/wiki?charset=utf8")
-	DB = db
+	MySQLDB = db
 	checkErr(err)
 }
 
