@@ -10,14 +10,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/durban89/wiki/db"
 	"github.com/durban89/wiki/helpers"
+	"github.com/durban89/wiki/models"
 )
 
 // ArticleViewWithID 获取文章的id
 func ArticleViewWithID(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(r.Method) == "get" {
-		var validPath = regexp.MustCompile("^/(view)/([a-zA-Z0-9]+)$")
+		var validPath = regexp.MustCompile("^/(view|edit)/([a-zA-Z0-9]+)$")
 		m := validPath.FindStringSubmatch(r.URL.Path)
+		fmt.Println(m)
 		if m == nil {
 			http.NotFound(w, r)
 			return
@@ -122,10 +125,30 @@ func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 // ArticleEdit 编辑文章
-func ArticleEdit(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := helpers.LoadPage(title)
+func ArticleEdit(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	where := []db.Where{}
+
+	where = append(where, db.Where{
+		Name:  "autokid",
+		Value: id,
+	})
+
+	blogModel := &models.Blog{
+		Select: []string{"*"},
+		Where:  where,
+	}
+
+	p, err := blogModel.QueryOne()
+
 	if err != nil {
-		p = &helpers.Page{Title: title}
+		http.NotFound(w, r)
+		return
 	}
 
 	crutime := time.Now().Unix()

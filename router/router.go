@@ -24,7 +24,7 @@ var RouterMaps = []*RouterMap{
 	},
 	{
 		Path: "/edit/",
-		Fn:   controllers.ArticleViewWithID,
+		Fn:   controllers.ArticleEdit,
 	},
 	{
 		Path: "/upload/",
