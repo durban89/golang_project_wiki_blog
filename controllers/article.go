@@ -5,11 +5,35 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/durban89/wiki/helpers"
 )
+
+// ArticleViewWithID 获取文章的id
+func ArticleViewWithID(w http.ResponseWriter, r *http.Request) {
+	if strings.ToLower(r.Method) == "get" {
+		var validPath = regexp.MustCompile("^/(view)/([a-zA-Z0-9]+)$")
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		// 获取文章标题或者文章ID
+		fmt.Println(m[2:])
+
+		fmt.Fprintf(w, "Welcome to the home page!")
+		return
+	}
+
+	http.NotFound(w, r)
+	return
+
+}
 
 // ArticleView 查看文章
 func ArticleView(w http.ResponseWriter, r *http.Request, title string) {

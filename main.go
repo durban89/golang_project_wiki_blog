@@ -4,15 +4,17 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/durban89/wiki/controllers"
-	"github.com/durban89/wiki/helpers"
+	"github.com/durban89/wiki/router"
 )
 
 func main() {
-	http.HandleFunc("/view/", helpers.MakeHandler(controllers.ArticleView))
-	http.HandleFunc("/save/", helpers.MakeHandler(controllers.ArticleSave))
-	http.HandleFunc("/edit/", helpers.MakeHandler(controllers.ArticleEdit))
-	http.HandleFunc("/upload/", controllers.UploadHandler)
-	http.HandleFunc("/postFile/", controllers.PostFileHandler)
-	log.Fatal(http.ListenAndServe(":8090", nil))
+	router.Routes()
+
+	err := http.ListenAndServe(":8090", nil)
+
+	if err != nil {
+		log.Println("Server Start Failed")
+	} else {
+		log.Println("Listening on 0.0.0.0:8090")
+	}
 }
