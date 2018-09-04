@@ -13,7 +13,7 @@
         <div class="text-center">
           <h1>Editing:【 {{.Title}}】</h1>
         </div>
-        <form action="/save/{{.Title}}" method="POST">
+        <form action="/edit/?id={{.ID}}" method="POST">
           <div class="form-group">
             <label for="title"></label>
             <input class="form-control" name="title" id="title" value="{{.Title}}"/>

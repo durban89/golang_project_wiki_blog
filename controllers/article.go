@@ -133,29 +133,65 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	where := []db.Where{}
+	update := []db.UpdateSection{}
 
-	where = append(where, db.Where{
-		Name:  "autokid",
-		Value: id,
-	})
+	if strings.ToLower(r.Method) == "get" {
 
-	blogModel := &models.Blog{
-		Select: []string{"*"},
-		Where:  where,
-	}
+		where = append(where, db.Where{
+			Name:  "autokid",
+			Value: id,
+		})
 
-	p, err := blogModel.QueryOne()
+		blogModel := &models.Blog{
+			Select: []string{"*"},
+			Where:  where,
+		}
 
-	if err != nil {
-		http.NotFound(w, r)
+		p, err := blogModel.QueryOne()
+
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		crutime := time.Now().Unix()
+		h := md5.New()
+		io.WriteString(h, strconv.FormatInt(crutime, 10))
+		token := fmt.Sprintf("%x", h.Sum(nil))
+
+		p.Token = token
+		helpers.RenderTemplate(w, "edit", p)
+	} else if strings.ToLower(r.Method) == "post" {
+		title := r.FormValue("title")
+		if title == "" {
+			http.Redirect(w, r, fmt.Sprintf("/edit?id=%s", id), http.StatusFound)
+			return
+		}
+
+		update = append(update, db.UpdateSection{
+			Name:  "title",
+			Value: title,
+		})
+
+		where = append(where, db.Where{
+			Name:  "autokid",
+			Value: id,
+		})
+
+		blogModel := &models.Blog{
+			Update: update,
+			Where:  where,
+		}
+
+		_, err := blogModel.UpdateData()
+
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/edit?id=%s", id), http.StatusFound)
 		return
 	}
 
-	crutime := time.Now().Unix()
-	h := md5.New()
-	io.WriteString(h, strconv.FormatInt(crutime, 10))
-	token := fmt.Sprintf("%x", h.Sum(nil))
-
-	p.Token = token
-	helpers.RenderTemplate(w, "edit", p)
 }
