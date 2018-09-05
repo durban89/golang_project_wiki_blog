@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/durban89/wiki/db"
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 )
@@ -132,22 +131,20 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	where := []db.Where{}
-	update := []db.UpdateSection{}
+	where := models.WhereValues{
+		"autokid": models.WhereCondition{
+			Operator: "=",
+			Value:    id,
+		},
+	}
+
+	update := map[string]string{}
 
 	if strings.ToLower(r.Method) == "get" {
 
-		where = append(where, db.Where{
-			Name:  "autokid",
-			Value: id,
-		})
+		blogModel := &models.Blog{}
 
-		blogModel := &models.Blog{
-			Select: []string{"*"},
-			Where:  where,
-		}
-
-		p, err := blogModel.QueryOne()
+		p, err := blogModel.QueryOne(where)
 
 		if err != nil {
 			http.NotFound(w, r)
@@ -160,7 +157,7 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 		token := fmt.Sprintf("%x", h.Sum(nil))
 
 		p.Token = token
-		helpers.RenderTemplate(w, "edit", p)
+		helpers.RenderTemplate(w, "edit", &p)
 	} else if strings.ToLower(r.Method) == "post" {
 		title := r.FormValue("title")
 		if title == "" {
@@ -168,22 +165,11 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		update = append(update, db.UpdateSection{
-			Name:  "title",
-			Value: title,
-		})
+		update["title"] = title
 
-		where = append(where, db.Where{
-			Name:  "autokid",
-			Value: id,
-		})
+		blogModel := &models.Blog{}
 
-		blogModel := &models.Blog{
-			Update: update,
-			Where:  where,
-		}
-
-		_, err := blogModel.UpdateData()
+		_, err := blogModel.Update(update, where)
 
 		if err != nil {
 			http.NotFound(w, r)
