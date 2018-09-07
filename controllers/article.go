@@ -140,11 +140,11 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 
 	update := map[string]string{}
 
+	var blogModel models.BlogModel
+
 	if strings.ToLower(r.Method) == "get" {
 
-		blogModel := &models.Blog{}
-
-		p, err := blogModel.QueryOne(where)
+		p, err := blogModel.QueryOne([]string{"*"}, where)
 
 		if err != nil {
 			http.NotFound(w, r)
@@ -167,9 +167,8 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 
 		update["title"] = title
 
-		blogModel := &models.Blog{}
-
-		_, err := blogModel.Update(update, where)
+		var blogInstance models.BlogModel
+		_, err := blogInstance.Update(update, where)
 
 		if err != nil {
 			http.NotFound(w, r)
