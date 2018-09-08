@@ -14,6 +14,33 @@ import (
 	"github.com/durban89/wiki/models"
 )
 
+// ArticleItem 列表
+func ArticleItem(w http.ResponseWriter, r *http.Request) {
+	var blogModel models.BlogModel
+
+	var autokid int64
+	var title string
+	selectField := models.SelectValues{
+		"autokid": &autokid,
+		"title":   &title,
+	}
+
+	where := models.WhereValues{}
+
+	qr, err := blogModel.Query(selectField, where, 1, 10)
+
+	if err != nil {
+		fmt.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Println(qr)
+
+	fmt.Fprintf(w, "Welcome to the home page!")
+	return
+}
+
 // ArticleViewWithID 获取文章的id
 func ArticleViewWithID(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(r.Method) == "get" {
@@ -143,12 +170,23 @@ func ArticleEdit(w http.ResponseWriter, r *http.Request) {
 	var blogModel models.BlogModel
 
 	if strings.ToLower(r.Method) == "get" {
+		var autokid int64
+		var title string
+		selectField := models.SelectValues{
+			"autokid": &autokid,
+			"title":   &title,
+		}
 
-		p, err := blogModel.QueryOne([]string{"*"}, where)
+		err := blogModel.QueryOne(selectField, where)
 
 		if err != nil {
 			http.NotFound(w, r)
 			return
+		}
+
+		p := helpers.Page{
+			Title: title,
+			ID:    autokid,
 		}
 
 		crutime := time.Now().Unix()

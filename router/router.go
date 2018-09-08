@@ -16,7 +16,7 @@ type RouterMap struct {
 var RouterMaps = []*RouterMap{
 	{
 		Path: "/view/",
-		Fn:   controllers.ArticleViewWithID,
+		Fn:   controllers.ArticleItem,
 	},
 	{
 		Path: "/save/",

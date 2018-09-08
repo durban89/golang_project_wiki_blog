@@ -7,7 +7,7 @@ import (
 
 // Page 页面结构
 type Page struct {
-	ID     int
+	ID     int64
 	Title  string
 	Body   []byte
 	Script string

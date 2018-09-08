@@ -2,12 +2,11 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/durban89/wiki/db"
-	"github.com/durban89/wiki/helpers"
 )
 
 // ModelMethod 接口
@@ -40,7 +39,10 @@ type UpdateValues map[string]string
 type InsertValues map[string]string
 
 // SelectValues select条件值
-type SelectValues []string
+type SelectValues map[string]interface{}
+
+// SelectResult 结果值
+type SelectResult map[string]interface{}
 
 // Conn 连接
 var Conn *sql.DB
@@ -129,38 +131,57 @@ func (p *ModelProperty) Delete(id int64) (int64, error) {
 }
 
 // Query 获取数据
-func (p *ModelProperty) Query() ([]helpers.Page, error) {
-	sql := fmt.Sprintf("SELECT * FROM %s", tableName)
+func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, limit int64) ([]SelectResult, error) {
+	var selectString = s.MergeSelect()
+
+	var whereString = where.MergeWhere()
+
+	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
+		selectString, tableName, whereString, offset, limit)
+
+	fmt.Println(sql)
+
 	rows, err := Conn.Query(sql)
 
+	result := []SelectResult{}
+
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
-	var res = []helpers.Page{}
+	selectField := make([]interface{}, len(s))
+
+	var i = 0
+	for _, v := range s {
+		selectField[i] = v
+		i++
+	}
 
 	for rows.Next() {
-		var autokid int
-		var title string
-		err = rows.Scan(&autokid, &title)
+		err = rows.Scan(selectField...)
 
 		if err != nil {
-			return nil, err
+			return result, err
 		}
 
-		p := helpers.Page{
-			ID:    autokid,
-			Title: title,
+		var i = 0
+		tmpResult := SelectResult{}
+
+		for k, v := range s {
+			ref := reflect.ValueOf(v)
+			refv := ref.Elem()
+			tmpResult[k] = refv
+			i++
 		}
 
-		res = append(res, p)
+		result = append(result, tmpResult)
 	}
 
-	return res, nil
+	return result, nil
 }
 
 // QueryOne 获取一条数据
-func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) (helpers.Page, error) {
+func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 	var selectString = s.MergeSelect()
 
 	var whereString = where.MergeWhere()
@@ -169,41 +190,43 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) (helpers.Pag
 
 	rows, err := Conn.Query(sql)
 
-	var res = helpers.Page{}
-
 	if err != nil {
-		return res, err
+		return err
 	}
 
-	var autokid int
-	var title string
+	selectField := make([]interface{}, len(s))
+
+	var i = 0
+	for _, v := range s {
+		selectField[i] = v
+		i++
+	}
 
 	for rows.Next() {
-		err = rows.Scan(&autokid, &title)
-		// err = rows.Scan(interfaceSlice...)
+		err = rows.Scan(selectField...)
 
 		if err != nil {
-			return res, err
+			return err
 		}
 
-		p := helpers.Page{
-			ID:    autokid,
-			Title: title,
+		var i = 0
+		for _, v := range s {
+			ref := reflect.ValueOf(v)
+			fmt.Println(ref.Elem())
+			i++
 		}
-
-		res = p
 	}
 
-	if res.ID == 0 {
-		return res, errors.New("资源不存在")
-	}
-
-	return res, nil
+	return nil
 }
 
 // MergeWhere 合并where条件
 func (w WhereValues) MergeWhere() string {
 	where := []string{}
+	if len(w) == 0 {
+		return "1=1"
+	}
+
 	for k, v := range w {
 		if v.Operator == "" {
 			s := fmt.Sprintf("%s = %s", k, v.Value)
@@ -244,5 +267,11 @@ func (i InsertValues) MergeInsert() (string, string) {
 
 // MergeSelect  合并select条件
 func (s SelectValues) MergeSelect() string {
-	return strings.Join(s, ", ")
+	value := []string{}
+	for k := range s {
+		v := fmt.Sprintf("`%s`", k)
+		value = append(value, v)
+	}
+
+	return strings.Join(value, ", ")
 }
