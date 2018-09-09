@@ -139,8 +139,6 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
 		selectString, tableName, whereString, offset, limit)
 
-	fmt.Println(sql)
-
 	rows, err := Conn.Query(sql)
 
 	result := []SelectResult{}
@@ -165,12 +163,18 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 		}
 
 		var i = 0
-		tmpResult := SelectResult{}
+		var tmpResult = SelectResult{}
 
 		for k, v := range s {
-			ref := reflect.ValueOf(v)
-			refv := ref.Elem()
-			tmpResult[k] = refv
+			var ref = reflect.ValueOf(v)
+			var refv = ref.Elem()
+
+			if refv.Kind() == reflect.Int64 {
+				tmpResult[k] = refv.Int()
+			} else if refv.Kind() == reflect.String {
+				tmpResult[k] = refv.String()
+			}
+
 			i++
 		}
 

@@ -15,6 +15,10 @@ type RouterMap struct {
 // RouterMaps 路由列表
 var RouterMaps = []*RouterMap{
 	{
+		Path: "/item/",
+		Fn:   controllers.ArticleItem,
+	},
+	{
 		Path: "/view/",
 		Fn:   controllers.ArticleItem,
 	},

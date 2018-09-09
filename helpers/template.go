@@ -5,13 +5,26 @@ import (
 	"net/http"
 
 	"github.com/durban89/wiki/config"
+	"github.com/durban89/wiki/models"
 )
 
-var templates = template.Must(template.ParseFiles(config.TemplateDir+"/edit.html", config.TemplateDir+"/view.html", config.TemplateDir+"/upload.html"))
+var templates = template.Must(template.ParseFiles(
+	config.TemplateDir+"/edit.html",
+	config.TemplateDir+"/view.html",
+	config.TemplateDir+"/upload.html",
+	config.TemplateDir+"/item.html"))
 
 // RenderTemplate 渲染模板
 func RenderTemplate(w http.ResponseWriter, templateName string, p *Page) {
 	err := templates.ExecuteTemplate(w, templateName+".html", p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// RenderTemplateWithItemData 多数据渲染模板
+func RenderTemplateWithItemData(w http.ResponseWriter, templateName string, data []models.SelectResult) {
+	err := templates.ExecuteTemplate(w, templateName+".html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

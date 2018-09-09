@@ -3,12 +3,15 @@ package controllers
 import (
 	"crypto/md5"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/durban89/wiki/config"
 
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
@@ -27,7 +30,7 @@ func ArticleItem(w http.ResponseWriter, r *http.Request) {
 
 	where := models.WhereValues{}
 
-	qr, err := blogModel.Query(selectField, where, 1, 10)
+	qr, err := blogModel.Query(selectField, where, 0, 10)
 
 	if err != nil {
 		fmt.Println(err)
@@ -35,10 +38,23 @@ func ArticleItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(qr)
+	t, err := template.ParseFiles(config.TemplateDir + "/item.html")
 
-	fmt.Fprintf(w, "Welcome to the home page!")
-	return
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, struct {
+		Data []models.SelectResult
+	}{
+		Data: qr,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // ArticleViewWithID 获取文章的id
