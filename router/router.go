@@ -7,13 +7,17 @@ import (
 )
 
 // RouterMap 路由
-type RouterMap struct {
+type Map struct {
 	Path string
 	Fn   func(http.ResponseWriter, *http.Request)
 }
 
 // RouterMaps 路由列表
-var RouterMaps = []*RouterMap{
+var RouterMaps = []*Map{
+	{
+		Path: "/login/",
+		Fn:   controllers.WelcomeLogin,
+	},
 	{
 		Path: "/item/",
 		Fn:   controllers.ArticleItem,

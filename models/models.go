@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/durban89/wiki/db"
@@ -147,13 +148,7 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 		return result, err
 	}
 
-	selectField := make([]interface{}, len(s))
-
-	var i = 0
-	for _, v := range s {
-		selectField[i] = v
-		i++
-	}
+	selectField := s.MergeSelectValue()
 
 	for rows.Next() {
 		err = rows.Scan(selectField...)
@@ -162,21 +157,7 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 			return result, err
 		}
 
-		var i = 0
-		var tmpResult = SelectResult{}
-
-		for k, v := range s {
-			var ref = reflect.ValueOf(v)
-			var refv = ref.Elem()
-
-			if refv.Kind() == reflect.Int64 {
-				tmpResult[k] = refv.Int()
-			} else if refv.Kind() == reflect.String {
-				tmpResult[k] = refv.String()
-			}
-
-			i++
-		}
+		tmpResult := s.MergeResultValues()
 
 		result = append(result, tmpResult)
 	}
@@ -198,26 +179,13 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 		return err
 	}
 
-	selectField := make([]interface{}, len(s))
-
-	var i = 0
-	for _, v := range s {
-		selectField[i] = v
-		i++
-	}
+	selectField := s.MergeSelectValue()
 
 	for rows.Next() {
 		err = rows.Scan(selectField...)
 
 		if err != nil {
 			return err
-		}
-
-		var i = 0
-		for _, v := range s {
-			ref := reflect.ValueOf(v)
-			fmt.Println(ref.Elem())
-			i++
 		}
 	}
 
@@ -271,11 +239,61 @@ func (i InsertValues) MergeInsert() (string, string) {
 
 // MergeSelect  合并select条件
 func (s SelectValues) MergeSelect() string {
+	sortedKeys := s.SortSelect()
+
 	value := []string{}
-	for k := range s {
+	for _, k := range sortedKeys {
 		v := fmt.Sprintf("`%s`", k)
 		value = append(value, v)
 	}
 
 	return strings.Join(value, ", ")
+}
+
+// MergeSelectValue  取出select条件的值
+func (s SelectValues) MergeSelectValue() []interface{} {
+	sortedKeys := s.SortSelect()
+
+	selectField := make([]interface{}, len(s))
+	var i = 0
+	for _, k := range sortedKeys {
+		selectField[i] = s[k]
+		i++
+	}
+
+	return selectField
+}
+
+// SortSelect 排序select keys
+func (s SelectValues) SortSelect() []string {
+	sortedKeys := make([]string, 0)
+	for k := range s {
+		sortedKeys = append(sortedKeys, k)
+	}
+
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
+}
+
+// MergeResultValues 查询结果的值合并
+func (s SelectValues) MergeResultValues() SelectResult {
+	var tmpResult = SelectResult{}
+
+	var i = 0
+
+	for k, v := range s {
+		var ref = reflect.ValueOf(v)
+		var refv = ref.Elem()
+
+		if refv.Kind() == reflect.Int64 {
+			tmpResult[k] = refv.Int()
+		} else if refv.Kind() == reflect.String {
+			tmpResult[k] = refv.String()
+		}
+
+		i++
+	}
+
+	return tmpResult
 }

@@ -19,6 +19,22 @@ import (
 
 // ArticleItem 列表
 func ArticleItem(w http.ResponseWriter, r *http.Request) {
+	var siteName string
+	cookie, err := r.Cookie("site_name_cookie")
+
+	if err != nil {
+		expired := time.Now().Add(365 * 24 * time.Hour)
+		cookie := http.Cookie{
+			Name:    "site_name_cookie",
+			Value:   "gowhich_cookie",
+			Expires: expired,
+		}
+
+		http.SetCookie(w, &cookie)
+	} else {
+		siteName = cookie.Value
+	}
+
 	var blogModel models.BlogModel
 
 	var autokid int64
@@ -46,9 +62,11 @@ func ArticleItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, struct {
-		Data []models.SelectResult
+		Data   []models.SelectResult
+		Cookie string
 	}{
-		Data: qr,
+		Data:   qr,
+		Cookie: siteName,
 	})
 
 	if err != nil {
