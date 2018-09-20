@@ -15,6 +15,30 @@ type Map struct {
 // RouterMaps 路由列表
 var RouterMaps = []*Map{
 	{
+		Path: "/json/to/test",
+		Fn:   controllers.JsonToTest,
+	},
+	{
+		Path: "/json/process/",
+		Fn:   controllers.JsonProcess,
+	},
+	{
+		Path: "/json/to/interface",
+		Fn:   controllers.JsonToInterface,
+	},
+	{
+		Path: "/json/",
+		Fn:   controllers.Json,
+	},
+	{
+		Path: "/process/xml/",
+		Fn:   controllers.WelcomeProcessXML,
+	},
+	{
+		Path: "/xml/",
+		Fn:   controllers.WelcomeXML,
+	},
+	{
 		Path: "/login/",
 		Fn:   controllers.WelcomeLogin,
 	},
