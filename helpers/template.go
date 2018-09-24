@@ -8,11 +8,15 @@ import (
 	"github.com/durban89/wiki/models"
 )
 
-var templates = template.Must(template.ParseFiles(
-	config.TemplateDir+"/edit.html",
-	config.TemplateDir+"/view.html",
-	config.TemplateDir+"/upload.html",
-	config.TemplateDir+"/item.html"))
+var templates *template.Template
+
+func init() {
+	templates = template.Must(template.ParseFiles(
+		config.TemplateDir+"/edit.html",
+		config.TemplateDir+"/view.html",
+		config.TemplateDir+"/upload.html",
+		config.TemplateDir+"/item.html"))
+}
 
 // RenderTemplate 渲染模板
 func RenderTemplate(w http.ResponseWriter, templateName string, p *Page) {
