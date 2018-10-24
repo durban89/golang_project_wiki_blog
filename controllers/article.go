@@ -3,113 +3,15 @@ package controllers
 import (
 	"crypto/md5"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/durban89/wiki/config"
-
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 )
-
-// ArticleItem 列表
-func ArticleItem(w http.ResponseWriter, r *http.Request) {
-	var siteName string
-	cookie, err := r.Cookie("site_name_cookie")
-
-	if err != nil {
-		expired := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{
-			Name:    "site_name_cookie",
-			Value:   "gowhich_cookie",
-			Expires: expired,
-		}
-
-		http.SetCookie(w, &cookie)
-	} else {
-		siteName = cookie.Value
-	}
-
-	var blogModel models.BlogModel
-
-	var autokid int64
-	var title string
-	selectField := models.SelectValues{
-		"autokid": &autokid,
-		"title":   &title,
-	}
-
-	where := models.WhereValues{}
-
-	qr, err := blogModel.Query(selectField, where, 0, 10)
-
-	if err != nil {
-		fmt.Println(err)
-		http.NotFound(w, r)
-		return
-	}
-
-	t, err := template.ParseFiles(config.TemplateDir + "/item.html")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = t.Execute(w, struct {
-		Data   []models.SelectResult
-		Cookie string
-	}{
-		Data:   qr,
-		Cookie: siteName,
-	})
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-// ArticleViewWithID 获取文章的id
-func ArticleViewWithID(w http.ResponseWriter, r *http.Request) {
-	if strings.ToLower(r.Method) == "get" {
-		var validPath = regexp.MustCompile("^/(view|edit)/([a-zA-Z0-9]+)$")
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		fmt.Println(m)
-		if m == nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		// 获取文章标题或者文章ID
-		fmt.Println(m[2:])
-
-		fmt.Fprintf(w, "Welcome to the home page!")
-		return
-	}
-
-	http.NotFound(w, r)
-	return
-
-}
-
-// ArticleView 查看文章
-func ArticleView(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := helpers.LoadPage(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
-
-	// p.Script = "<script>alert('you have been pwned')</script>"
-	// p.Html = template.HTML("<script>alert('you have been pwned')</script>")
-	helpers.RenderTemplate(w, "view", p)
-}
 
 // ArticleSave 存储文章
 func ArticleSave(w http.ResponseWriter, r *http.Request, title string) {
