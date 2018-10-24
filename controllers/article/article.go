@@ -1,6 +1,7 @@
 package article
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 	"github.com/durban89/wiki/models/article"
 )
 
-// Update 更新文章
-func Update(w http.ResponseWriter, r *http.Request) {
+// Save 文章
+func Save(w http.ResponseWriter, r *http.Request) {
+
 	r.ParseForm()
+	fmt.Println("post save")
+	return
 	title := r.FormValue("title")
 	body := r.FormValue("body")
 	author := r.FormValue("author")
@@ -85,6 +89,67 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
+// Update 更新文章
+func Update(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// model 数据检索查询
+	// var articleModel article.Article
+
+	var autokid int64
+	var title string
+	var content sql.NullString
+	selectField := models.SelectValues{
+		"autokid": &autokid,
+		"title":   &title,
+		"content": &content,
+	}
+
+	where := models.WhereValues{
+		"autokid": models.WhereCondition{
+			Operator: "=",
+			Value:    id,
+		},
+	}
+
+	err := article.Instance.QueryOne(selectField, where)
+
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// 视图渲染
+	t, err := template.ParseFiles(config.TemplateDir + "/update.html")
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, struct {
+		Autokid int64
+		Title   string
+		Content sql.NullString
+	}{
+		Autokid: autokid,
+		Title:   title,
+		Content: content,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	return
+}
+
 // View 文章详情
 func View(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
@@ -95,13 +160,15 @@ func View(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// model 数据检索查询
-	var articleModel article.Article
+	// var articleModel article.Instance
 
 	var autokid int64
 	var title string
+	var content sql.NullString
 	selectField := models.SelectValues{
 		"autokid": &autokid,
 		"title":   &title,
+		"content": &content,
 	}
 
 	where := models.WhereValues{
@@ -111,7 +178,7 @@ func View(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := articleModel.QueryOne(selectField, where)
+	err := article.Instance.QueryOne(selectField, where)
 
 	if err != nil {
 		fmt.Println(err)
@@ -130,15 +197,11 @@ func View(w http.ResponseWriter, r *http.Request) {
 	err = t.Execute(w, struct {
 		Autokid int64
 		Title   string
-		Body    string
-		Script  string
-		Html    string
+		Content string
 	}{
 		Autokid: autokid,
 		Title:   title,
-		Body:    "dddd",
-		Script:  "",
-		Html:    "",
+		Content: content.String,
 	})
 
 	if err != nil {
@@ -167,7 +230,7 @@ func Item(w http.ResponseWriter, r *http.Request) {
 		siteName = cookie.Value
 	}
 
-	var articleModel article.Article
+	// var articleModel article.Article
 
 	var autokid int64
 	var title string
@@ -178,7 +241,7 @@ func Item(w http.ResponseWriter, r *http.Request) {
 
 	where := models.WhereValues{}
 
-	qr, err := articleModel.Query(selectField, where, 0, 10)
+	qr, err := article.Instance.Query(selectField, where, 0, 10)
 
 	if err != nil {
 		fmt.Println(err)

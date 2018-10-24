@@ -66,7 +66,7 @@ func init() {
 // Create 添加数据
 func (p *ModelProperty) Create(data InsertValues) (int64, error) {
 	name, value := data.MergeInsert()
-	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", tableName, name, value)
+	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", p.TableName, name, value)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -90,7 +90,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 	var updateString = update.MergeUpdate()
 	var whereString = where.MergeWhere()
 
-	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", tableName, updateString, whereString)
+	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", p.TableName, updateString, whereString)
 
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
@@ -112,7 +112,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 
 // Delete 删除数据
 func (p *ModelProperty) Delete(id int64) (int64, error) {
-	sql := fmt.Sprintf("DELETE FROM %s WHERE autokid=?", tableName)
+	sql := fmt.Sprintf("DELETE FROM %s WHERE autokid=?", p.TableName)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -138,7 +138,7 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 	var whereString = where.MergeWhere()
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
-		selectString, tableName, whereString, offset, limit)
+		selectString, p.TableName, whereString, offset, limit)
 
 	rows, err := Conn.Query(sql)
 
@@ -171,13 +171,27 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 
 	var whereString = where.MergeWhere()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, tableName, whereString)
+	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
 
 	rows, err := Conn.Query(sql)
 
 	if err != nil {
 		return err
 	}
+
+	// columns, err := rows.Columns()
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(columns)
+
+	// columnTypes, err := rows.ColumnTypes()
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(columnTypes)
 
 	selectField := s.MergeSelectValue()
 

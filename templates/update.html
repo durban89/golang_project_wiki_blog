@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{{.Title}}</title>
+    <title>更新【{{.Title}}】</title>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   </head>
   
@@ -11,12 +11,16 @@
     <div class="container">
       <div class="col-md-12">
         <div class="text-center">
-          <h1>{{.Title}}</h1>
+          <h1>更新文章</h1>
         </div>
-        
-        <p>[<a href="/articles/update/?id={{.Autokid}}">更新</a>]</p>
-
-        <div>{{printf "%s" .Content}}</div>
+        <div>
+          <form method="POST" action="/articles/save/">
+            <input name="id" value="{{ .Autokid }}" type="hidden" />
+            <input name="title" value="{{ .Title }}" type="text" />
+            <textarea name="content" id="content">{{ .Content }}</textarea>
+            <button type="submit">提交</button>
+          </form>
+        </div>
       </div>
     </div>
     
