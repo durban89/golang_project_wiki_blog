@@ -9,7 +9,7 @@ import (
 // Routes 操作
 func Routes() {
 	// 文章
-	GET("/articles/([a-zA-Z0-9]+)/update", article.Update)
+	GET("/articles/update/", article.Update)
 	GET("/articles/view/", article.View)
 	GET("/articles/", article.Item)
 	// 其他
