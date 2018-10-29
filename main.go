@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// 路由
 	router.Routes()
 
 	err := http.ListenAndServe(":8090", nil)

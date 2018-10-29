@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/durban89/wiki/db"
 )
@@ -45,6 +46,12 @@ type SelectValues map[string]interface{}
 // SelectResult 结果值
 type SelectResult map[string]interface{}
 
+// ModelError 模型错误信息结构
+type ModelError struct {
+	When time.Time
+	What string
+}
+
 // Conn 连接
 var Conn *sql.DB
 
@@ -63,16 +70,21 @@ func init() {
 	// blogInstance.Update()
 }
 
+func (e ModelError) Error() string {
+	return fmt.Sprintf("时间 %v, 错误信息%s", e.When, e.What)
+}
+
 // Create 添加数据
 func (p *ModelProperty) Create(data InsertValues) (int64, error) {
-	name, value := data.MergeInsert()
-	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", p.TableName, name, value)
+	name, preValue, value := data.MergeInsert()
+	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", p.TableName, name, preValue)
+
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec()
+	res, err := stmt.Exec(value...)
 	if err != nil {
 		return 0, err
 	}
@@ -238,17 +250,25 @@ func (u UpdateValues) MergeUpdate() string {
 }
 
 // MergeInsert 合并Insert值
-func (i InsertValues) MergeInsert() (string, string) {
+func (i InsertValues) MergeInsert() (string, string, []interface{}) {
+	sortedKeys := i.SortSelect()
+
 	name := []string{}
-	value := []string{}
-	for k, v := range i {
+	preValue := []string{}
+	value := make([]interface{}, len(i))
+	var j = 0
+	for _, k := range sortedKeys {
 		n := fmt.Sprintf("%s", k)
-		v := fmt.Sprintf("'%s'", v)
+		v := fmt.Sprintf("?")
 		name = append(name, n)
-		value = append(value, v)
+		preValue = append(preValue, v)
+		fmt.Println("k = ", k)
+		fmt.Println("v = ", i[k])
+		value[j] = i[k]
+		j++
 	}
 
-	return strings.Join(name, ", "), fmt.Sprintf("(%s)", strings.Join(value, ", "))
+	return fmt.Sprintf("(%s)", strings.Join(name, ", ")), fmt.Sprintf("(%s)", strings.Join(preValue, ", ")), value
 }
 
 // MergeSelect  合并select条件
@@ -282,6 +302,18 @@ func (s SelectValues) MergeSelectValue() []interface{} {
 func (s SelectValues) SortSelect() []string {
 	sortedKeys := make([]string, 0)
 	for k := range s {
+		sortedKeys = append(sortedKeys, k)
+	}
+
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
+}
+
+// SortSelect 排序insert keys
+func (i InsertValues) SortSelect() []string {
+	sortedKeys := make([]string, 0)
+	for k := range i {
 		sortedKeys = append(sortedKeys, k)
 	}
 

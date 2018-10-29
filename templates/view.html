@@ -4,24 +4,51 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{.Title}}</title>
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" >
+    <link rel="stylesheet" href="/static/bower_components/editor.md/css/editormd.min.css" />
+    <link rel="stylesheet" href="/static/css/main.css" />
   </head>
   
   <body>
+    {{ template "nav" }}
     <div class="container">
       <div class="col-md-12">
         <div class="text-center">
           <h1>{{.Title}}</h1>
         </div>
         
-        <p>[<a href="/articles/update/?id={{.Autokid}}">更新</a>]</p>
+        <p>[<a href="/articles/update/?id={{ .Autokid }}">更新</a>]</p>
 
-        <div>{{printf "%s" .Content}}</div>
+        <div id="content-view">
+          <textarea style="display:none;">{{ .Content }}</textarea>
+        </div>
       </div>
     </div>
     
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/marked.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/prettify.min.js"></script>  
+    <script src="/static/bower_components/editor.md/lib/raphael.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/underscore.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/sequence-diagram.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/flowchart.min.js"></script>
+    <script src="/static/bower_components/editor.md/lib/jquery.flowchart.min.js"></script>
+    <script src="/static/bower_components/editor.md/editormd.min.js"></script>
+    <script type="text/javascript">
+    var contentEditor;
+    $(() => {
+      contentEditor = editormd.markdownToHTML('content-view', {
+        htmlDecode: 'style,script,iframe', // you can filter tags decode
+        emoji: true,
+        taskList: true,
+        tex: true, // 默认不解析
+        flowChart: true, // 默认不解析
+        sequenceDiagram: true, // 默认不解析
+        path: '/static/bower_components/editor.md/lib/',
+      });
+    });
+    </script>
   </body>
 </html>

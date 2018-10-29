@@ -12,6 +12,7 @@
   </head>
   
   <body>
+    {{ template "nav" }}
     <div class="container">
       <div class="row">
         <div class="col-md-9">
@@ -22,8 +23,16 @@
 
           {{range .Data}}
           <div class="blog-post">
-            <h2 class="blog-post-title">{{ .autokid }} - {{ .title }} blog post</h2>
-            <p class="blog-post-meta">January 1, 2014 by <a href="#">Mark</a></p>
+            <h2 class="blog-post-title">
+              {{ .autokid }} - {{ .title }} blog post
+              <a class="btn btn-primary btn-sm" href="/articles/update/?id={{ .autokid }}">update</a>
+              <a class="btn btn-primary btn-sm" href="/articles/delete/?id={{ .autokid }}">delete</a>
+              <a class="btn btn-primary btn-sm" href="/articles/view/?id={{ .autokid }}">view</a>
+            </h2>
+            <p class="blog-post-meta">
+              January 1, 2014 by 
+              <a href="#">Mark</a>
+            </p>
           </div>
           {{end}}
 

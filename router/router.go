@@ -1,6 +1,8 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/durban89/wiki/controllers"
 	"github.com/durban89/wiki/controllers/article"
 	"github.com/durban89/wiki/controllers/welcome"
@@ -14,8 +16,11 @@ import (
 func Routes() {
 	// 添加路由配置
 	// 文章
+	GET("/articles/create/", article.Create)
 	GET("/articles/update/", article.Update)
+	GET("/articles/delete/", article.Delete)
 	GET("/articles/view/", article.View)
+	GET("/articles/error", article.Error)
 	GET("/articles/", article.Item)
 	POST("/articles/save/", article.Save)
 
@@ -29,4 +34,9 @@ func Routes() {
 	GET("/json/", controllers.Json)
 	GET("/upload/", controllers.UploadHandler)
 	GET("/postFile/", controllers.PostFileHandler)
+
+	// 静态文件路由
+	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 }
