@@ -24,16 +24,21 @@ func Routes() {
 	GET("/articles/", article.Item)
 	POST("/articles/save/", article.Save)
 
+	// XML文件操作
+	GET("/process/xml/", welcome.ProcessXML)
+	GET("/xml/", welcome.XML)
+
 	// 其他
-	GET("/process/xml/", welcome.WelcomeProcessXML)
-	GET("/xml/", welcome.WelcomeXML)
-	GET("/login/", welcome.WelcomeLogin)
 	GET("/json/to/test/", controllers.JsonToTest)
 	GET("/json/process/", controllers.JsonProcess)
 	GET("/json/to/interface/", controllers.JsonToInterface)
 	GET("/json/", controllers.Json)
 	GET("/upload/", controllers.UploadHandler)
 	GET("/postFile/", controllers.PostFileHandler)
+
+	// 首页
+	GET("/", welcome.Home)
+	GET("/login/", welcome.Login)
 
 	// 静态文件路由
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {

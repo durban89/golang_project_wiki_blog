@@ -3,10 +3,11 @@ package welcome
 import (
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/durban89/wiki/helpers/render"
 
 	"github.com/durban89/wiki/config"
 
@@ -30,7 +31,14 @@ type XMLServers struct {
 
 var appSession *session.Manager
 
-func WelcomeProcessXML(w http.ResponseWriter, r *http.Request) {
+// Home 首页
+func Home(w http.ResponseWriter, r *http.Request) {
+	render.Render(w, "index.html", nil)
+	return
+}
+
+// ProcessXML 处理XML
+func ProcessXML(w http.ResponseWriter, r *http.Request) {
 	v := &XMLServers{
 		Version: "1",
 	}
@@ -56,7 +64,8 @@ func WelcomeProcessXML(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func WelcomeXML(w http.ResponseWriter, r *http.Request) {
+// XML 文件解析
+func XML(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open(config.TemplateDir + "/server.xml")
 	if err != nil {
 		fmt.Println(err)
@@ -79,8 +88,8 @@ func WelcomeXML(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, v)
 }
 
-// WelcomeLogin 欢迎登录页
-func WelcomeLogin(w http.ResponseWriter, r *http.Request) {
+// Login 欢迎登录页
+func Login(w http.ResponseWriter, r *http.Request) {
 	session, err := appSession.SessionStart(w, r)
 	if err != nil {
 		fmt.Fprintf(w, "session error")
@@ -94,19 +103,9 @@ func WelcomeLogin(w http.ResponseWriter, r *http.Request) {
 		session.Set("count", count.(int)+1)
 	}
 
-	t, err := template.ParseFiles(config.TemplateDir + "/login.html")
+	render.Render(w, "login.html", session.Get("count"))
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = t.Execute(w, session.Get("count"))
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return
 }
 
 func init() {
