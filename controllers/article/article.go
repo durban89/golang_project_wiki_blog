@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/durban89/wiki/helpers/render"
@@ -17,120 +16,6 @@ import (
 func Error(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 	return
-}
-
-// Save 文章
-func Save(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	var id string
-	// fmt.Println(r.Form)
-	// return
-	id = r.FormValue("id")
-	title := r.FormValue("title")
-	content := r.FormValue("content")
-	category := r.FormValue("category")
-
-	fmt.Println("category ", category)
-
-	if title == "" || content == "" || category == "" {
-		fmt.Println("tishi 错误信息")
-	}
-
-	if id != "" {
-		update := models.UpdateValues{
-			"title":   title,
-			"content": content,
-		}
-		where := models.WhereValues{
-			"autokid": models.WhereCondition{
-				Operator: "=",
-				Value:    id,
-			},
-		}
-
-		_, err := article.Instance.Update(update, where)
-
-		if err != nil {
-			http.Redirect(w, r, "/articles/error", http.StatusInternalServerError)
-			return
-		}
-	} else {
-		fmt.Println("crete")
-		insert := models.InsertValues{
-			"title":   title,
-			"content": content,
-		}
-
-		insertID, err := article.Instance.Create(insert)
-
-		fmt.Println(insertID)
-
-		if err != nil {
-			fmt.Println(err)
-			http.Redirect(w, r, "/articles/error", http.StatusSeeOther)
-			return
-		}
-
-		id = strconv.FormatInt(insertID, 10)
-	}
-
-	if id == "" {
-		http.Redirect(w, r, "/articles/view/", http.StatusSeeOther)
-	} else {
-		http.Redirect(w, r, "/articles/view/?id="+id, http.StatusSeeOther)
-	}
-
-	// return
-	// if len(r.Form.Get("author")) == 0 {
-	// 	fmt.Println("author is empty")
-	// }
-
-	// slice := []string{"php", "java", "golang"}
-	// if !helpers.ValidateInArray(slice, category) {
-	// 	fmt.Println("category not in slice")
-	// }
-
-	// chennelSlice := []string{"news", "technology", "other"}
-	// a := helpers.ValidateSliceIntersection(channel, chennelSlice)
-	// if len(a) == 0 {
-	// 	fmt.Println("channel is empty")
-	// }
-
-	// XSS Example
-	// fmt.Println("author: ", template.HTMLEscapeString(r.Form.Get("author"))) // print at server side
-	// fmt.Println("author: ", template.HTMLEscapeString(r.Form.Get("author")))
-	// template.HTMLEscape(w, []byte(r.Form.Get("author"))) // responded to clients
-	// return
-
-	// 重复提交 Example
-	// if token != "" {
-	// 	// check token validity
-	// 	fmt.Println("To Validate Token")
-	// } else {
-	// 	// give error if no token
-	// 	fmt.Println("Token is empty")
-	// }
-
-	// p := &helpers.Page{
-	// 	Title: title,
-	// 	Body:  []byte(body),
-	// }
-
-	// // 开放状态验证
-	// openStatusSlice := []string{"1", "2"}
-
-	// if !helpers.ValidateInArray(openStatusSlice, openStatus) {
-	// 	fmt.Println("openStatus not in openStatusSlice")
-	// }
-
-	// err := p.Save()
-
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// http.Redirect(w, r, "/articles/view/?id="+id, http.StatusFound)
 }
 
 // Delete 删除操作

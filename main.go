@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"net/http"
 
@@ -12,12 +12,11 @@ func main() {
 	// 路由
 	router.Routes()
 
-	err := http.ListenAndServe(":8090", nil)
+	var addr = flag.String("addr", ":8090", "The addr of the application")
 
-	if err != nil {
-		log.Println("Server Start Failed")
-	} else {
-		fmt.Println("Listening on 0.0.0.0:8090")
-		log.Println("Listening on 0.0.0.0:8090")
+	log.Println("Starting web server on", *addr)
+
+	if err := http.ListenAndServe(*addr, nil); err != nil {
+		log.Fatal("ListenAndServe:", err)
 	}
 }
