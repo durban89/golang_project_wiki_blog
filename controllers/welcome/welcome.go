@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/durban89/wiki/helpers/render"
+	"github.com/durban89/wiki/helpers"
 
 	"github.com/durban89/wiki/config"
 
@@ -33,7 +33,7 @@ var appSession *session.Manager
 
 // Home 首页
 func Home(w http.ResponseWriter, r *http.Request) {
-	render.Render(w, "index.html", nil)
+	helpers.Render(w, "index.html", nil)
 	return
 }
 
@@ -103,7 +103,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		session.Set("count", count.(int)+1)
 	}
 
-	render.Render(w, "login.html", session.Get("count"))
+	helpers.Render(w, "login.html", session.Get("count"))
 
 	return
 }

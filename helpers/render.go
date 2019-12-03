@@ -1,4 +1,4 @@
-package render
+package helpers
 
 import (
 	"html/template"
@@ -6,6 +6,13 @@ import (
 
 	"github.com/durban89/wiki/config"
 )
+
+/*
+ * @Author: durban
+ * @Date:   2019-12-02 18:42:04
+ * @Last Modified by:   durban.zhang
+ * @Last Modified time: 2019-12-02 18:42:34
+ */
 
 // Render 视图
 func Render(w http.ResponseWriter, viewName string, data interface{}) {
