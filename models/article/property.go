@@ -9,8 +9,12 @@ var Instance models.ModelProperty
 
 // Property 属性
 type Property struct {
-	Autokid string
-	Title   string
+	Autokid    int64
+	Title      string
+	Content    string
+	CategoryID int64
+	CreatedAt  string
+	UpdatedAt  string
 }
 
 func init() {
