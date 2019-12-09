@@ -343,3 +343,19 @@ func (s SelectValues) MergeResultValues() SelectResult {
 
 	return tmpResult
 }
+
+// ToString 将指定键值的值转为字符串
+func (s SelectResult) ToString(key string) string {
+
+	for _, v := range s {
+		var ref = reflect.ValueOf(v)
+		var refv = ref.Elem()
+
+		if refv.Kind() == reflect.String {
+			fmt.Println(refv.String())
+		}
+	}
+
+	return ""
+	// return strings.Join(arr, splitStr)
+}

@@ -6,6 +6,8 @@
     <title>更新【{{.Title}}】</title>
     <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.0.0/css/bootstrap.min.css" >
     <link rel="stylesheet" href="/static/bower_components/editor.md/css/editormd.min.css" />
+    <link rel="stylesheet" href="/static/bootstrap-select/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="/static/tagsinput/jquery.tagsinput.min.css" />
     <link rel="stylesheet" href="/static/css/main.css" />
   </head>
   
@@ -27,6 +29,11 @@
               <label for="title">标题</label>
               <input type="text" name="title" class="form-control" id="title" placeholder="输入文章标题" value="{{ .Title }}" />
             </div>
+
+            <div class="form-group">
+              <label for="title">创建时间</label>
+              <input type="text" name="created_at" class="form-control" id="created_at" placeholder="创建时间" value="{{ .CreatedAt }}" />
+            </div>
             
             <div class="form-group">
               <label for="content">内容</label>
@@ -46,6 +53,11 @@
               </select>
             </div>
 
+            <div class="form-group">
+              <label for="category">标签</label>
+              <input type="text" name="tags" id="tags" class="form-control" id="tag" placeholder="输入标签" value="{{ .Tags }}">
+            </div>
+
             <button type="submit" class="btn btn-primary mb-2">提交</button>
           </form>
           
@@ -57,7 +69,14 @@
     <script src="https://lib.baomitu.com/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://lib.baomitu.com/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="/static/bower_components/editor.md/editormd.min.js"></script>
+    <script src="/static/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="/static/tagsinput/jquery.tagsinput.min.js"></script>
+    <script src="/static/bootstrap-select/defaults-zh_CN.min.js"></script>
     <script type="text/javascript">
+      $('#category').selectpicker();
+
+      $('#tags').tagsInput();
+
       var contentEditor;
       $(() => {
         contentEditor = editormd('editormd', {
