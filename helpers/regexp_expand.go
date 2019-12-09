@@ -5,6 +5,7 @@ import (
 	"regexp"
 )
 
+// Expand byte
 func Expand() {
 	src := []byte(`
 		call hello alice
