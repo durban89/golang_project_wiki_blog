@@ -1,6 +1,6 @@
 package models
 
-var tableName = "blog"
+// var tableName = "blog"
 
 // BlogModel 模型
 type BlogModel struct {

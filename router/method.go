@@ -1,9 +1,13 @@
 package router
 
-import (
-	"net/http"
-	"strings"
-)
+/*
+ * @Author: durban.zhang
+ * @Date:   2019-12-01 21:27:36
+ * @Last Modified by:   durban.zhang
+ * @Last Modified time: 2019-12-01 21:28:11
+ */
+
+import "net/http"
 
 // Method 接口
 type Method interface {
@@ -12,64 +16,4 @@ type Method interface {
 	DELETE(path string, handler func(w http.ResponseWriter, r *http.Request))
 	PUT(path string, handler func(w http.ResponseWriter, r *http.Request))
 	ALL(path string, handler func(w http.ResponseWriter, r *http.Request))
-}
-
-// GET 操作
-func GET(path string, handler func(w http.ResponseWriter, r *http.Request)) {
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		if strings.ToLower(r.Method) == "get" {
-			handler(w, r)
-			return
-		}
-
-		http.NotFound(w, r)
-		return
-	})
-}
-
-// POST 操作
-func POST(path string, handler func(w http.ResponseWriter, r *http.Request)) {
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		if strings.ToLower(r.Method) == "post" {
-			handler(w, r)
-			return
-		}
-
-		http.NotFound(w, r)
-		return
-	})
-}
-
-// DELETE 操作
-func DELETE(path string, handler func(w http.ResponseWriter, r *http.Request)) {
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		if strings.ToLower(r.Method) == "delete" {
-			handler(w, r)
-			return
-		}
-
-		http.NotFound(w, r)
-		return
-	})
-}
-
-// PUT 操作
-func PUT(path string, handler func(w http.ResponseWriter, r *http.Request)) {
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		if strings.ToLower(r.Method) == "put" {
-			handler(w, r)
-			return
-		}
-
-		http.NotFound(w, r)
-		return
-	})
-}
-
-// ALL 操作
-func ALL(path string, handler func(w http.ResponseWriter, r *http.Request)) {
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		handler(w, r)
-		return
-	})
 }

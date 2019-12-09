@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>首页 - Wiki</title>
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/blog.css" />
+</head>
+
+<body>
+  {{ template "nav" }}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9">
+
+        <h3 class="pb-3 mb-4 font-italic border-bottom">
+          From the Firehose
+        </h3>
+
+        {{range .Data}}
+        <div class="blog-post">
+          <h2 class="blog-post-title">
+            {{ .autokid }} - {{ .title }} blog post
+            <a class="btn btn-primary btn-sm" href="/articles/update/?id={{ .autokid }}">update</a>
+            <a class="btn btn-primary btn-sm" href="/articles/delete/?id={{ .autokid }}">delete</a>
+            <a class="btn btn-primary btn-sm" href="/articles/view/?id={{ .autokid }}">view</a>
+          </h2>
+          <p class="blog-post-meta">
+            January 1, 2014 by
+            <a href="#">Mark</a>
+          </p>
+        </div>
+        {{end}}
+
+        <nav class="blog-pagination">
+          <a class="btn btn-outline-primary" href="#">Older</a>
+          <a class="btn btn-outline-secondary disabled" href="#">Newer</a>
+        </nav>
+      </div>
+      <div class="col-md-3">
+        RightSidebar
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.slim.min.js"></script>
+  <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+  <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

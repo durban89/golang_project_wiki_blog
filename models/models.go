@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/durban89/wiki/db"
 )
@@ -45,6 +46,12 @@ type SelectValues map[string]interface{}
 // SelectResult 结果值
 type SelectResult map[string]interface{}
 
+// ModelError 模型错误信息结构
+type ModelError struct {
+	When time.Time
+	What string
+}
+
 // Conn 连接
 var Conn *sql.DB
 
@@ -63,16 +70,21 @@ func init() {
 	// blogInstance.Update()
 }
 
+func (e ModelError) Error() string {
+	return fmt.Sprintf("时间 %v, 错误信息%s", e.When, e.What)
+}
+
 // Create 添加数据
 func (p *ModelProperty) Create(data InsertValues) (int64, error) {
-	name, value := data.MergeInsert()
-	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", tableName, name, value)
+	name, preValue, value := data.MergeInsert()
+	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", p.TableName, name, preValue)
+
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec()
+	res, err := stmt.Exec(value...)
 	if err != nil {
 		return 0, err
 	}
@@ -90,7 +102,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 	var updateString = update.MergeUpdate()
 	var whereString = where.MergeWhere()
 
-	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", tableName, updateString, whereString)
+	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", p.TableName, updateString, whereString)
 
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
@@ -112,7 +124,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 
 // Delete 删除数据
 func (p *ModelProperty) Delete(id int64) (int64, error) {
-	sql := fmt.Sprintf("DELETE FROM %s WHERE autokid=?", tableName)
+	sql := fmt.Sprintf("DELETE FROM %s WHERE autokid=?", p.TableName)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -138,7 +150,7 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 	var whereString = where.MergeWhere()
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
-		selectString, tableName, whereString, offset, limit)
+		selectString, p.TableName, whereString, offset, limit)
 
 	rows, err := Conn.Query(sql)
 
@@ -171,13 +183,27 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 
 	var whereString = where.MergeWhere()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, tableName, whereString)
+	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
 
 	rows, err := Conn.Query(sql)
 
 	if err != nil {
 		return err
 	}
+
+	// columns, err := rows.Columns()
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(columns)
+
+	// columnTypes, err := rows.ColumnTypes()
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(columnTypes)
 
 	selectField := s.MergeSelectValue()
 
@@ -224,17 +250,25 @@ func (u UpdateValues) MergeUpdate() string {
 }
 
 // MergeInsert 合并Insert值
-func (i InsertValues) MergeInsert() (string, string) {
+func (i InsertValues) MergeInsert() (string, string, []interface{}) {
+	sortedKeys := i.SortSelect()
+
 	name := []string{}
-	value := []string{}
-	for k, v := range i {
+	preValue := []string{}
+	value := make([]interface{}, len(i))
+	var j = 0
+	for _, k := range sortedKeys {
 		n := fmt.Sprintf("%s", k)
-		v := fmt.Sprintf("'%s'", v)
+		v := fmt.Sprintf("?")
 		name = append(name, n)
-		value = append(value, v)
+		preValue = append(preValue, v)
+		fmt.Println("k = ", k)
+		fmt.Println("v = ", i[k])
+		value[j] = i[k]
+		j++
 	}
 
-	return strings.Join(name, ", "), fmt.Sprintf("(%s)", strings.Join(value, ", "))
+	return fmt.Sprintf("(%s)", strings.Join(name, ", ")), fmt.Sprintf("(%s)", strings.Join(preValue, ", ")), value
 }
 
 // MergeSelect  合并select条件
@@ -276,6 +310,18 @@ func (s SelectValues) SortSelect() []string {
 	return sortedKeys
 }
 
+// SortSelect 排序insert keys
+func (i InsertValues) SortSelect() []string {
+	sortedKeys := make([]string, 0)
+	for k := range i {
+		sortedKeys = append(sortedKeys, k)
+	}
+
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
+}
+
 // MergeResultValues 查询结果的值合并
 func (s SelectValues) MergeResultValues() SelectResult {
 	var tmpResult = SelectResult{}
@@ -296,4 +342,20 @@ func (s SelectValues) MergeResultValues() SelectResult {
 	}
 
 	return tmpResult
+}
+
+// ToString 将指定键值的值转为字符串
+func (s SelectResult) ToString(key string) string {
+
+	for _, v := range s {
+		var ref = reflect.ValueOf(v)
+		var refv = ref.Elem()
+
+		if refv.Kind() == reflect.String {
+			fmt.Println(refv.String())
+		}
+	}
+
+	return ""
+	// return strings.Join(arr, splitStr)
 }
