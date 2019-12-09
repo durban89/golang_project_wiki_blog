@@ -4,16 +4,19 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-11-29 14:15:19
+ * @Last Modified time: 2019-12-09 19:27:31
  */
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
+	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
+	"github.com/durban89/wiki/models/articletag"
 )
 
 // Save 存储
@@ -25,10 +28,12 @@ func Save(w http.ResponseWriter, r *http.Request) {
 	id = r.FormValue("id")
 	title := r.FormValue("title")
 	content := r.FormValue("content")
-	category := r.FormValue("category")
+	categoryID := r.FormValue("category_id")
+	tags := r.FormValue("tags")
 
-	if title == "" || content == "" || category == "" {
-		fmt.Println("参数异常")
+	if title == "" || content == "" || categoryID == "" || tags == "" {
+		http.Redirect(w, r, helpers.BackWithQuery(r, "err_msg=参数异常"), http.StatusSeeOther)
+		return
 	}
 
 	if id != "" {
@@ -46,23 +51,27 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		_, err := article.Instance.Update(update, where)
 
 		if err != nil {
-			http.Redirect(w, r, "/articles/error", http.StatusInternalServerError)
+			http.Redirect(w, r, helpers.BackWithQuery(r, "err_msg=更新失败"), http.StatusInternalServerError)
 			return
 		}
 	} else {
-		fmt.Println("crete")
+		t := time.Now()
+		currentTimeStr := t.Format("2006-01-02 15:04:05")
+
 		insert := models.InsertValues{
-			"title":   title,
-			"content": content,
+			"title":       title,
+			"content":     content,
+			"category_id": categoryID,
+			"created_at":  currentTimeStr,
+			"updated_at":  currentTimeStr,
 		}
 
 		insertID, err := article.Instance.Create(insert)
 
-		fmt.Println(insertID)
+		saveTag(insertID, tags)
 
 		if err != nil {
-			fmt.Println(err)
-			http.Redirect(w, r, "/articles/error", http.StatusSeeOther)
+			http.Redirect(w, r, helpers.BackWithQuery(r, "err_msg=添加失败"), http.StatusSeeOther)
 			return
 		}
 
@@ -73,5 +82,30 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/articles/view/", http.StatusSeeOther)
 	} else {
 		http.Redirect(w, r, "/articles/view/?id="+id, http.StatusSeeOther)
+	}
+}
+
+func saveTag(articleID int64, tags string) {
+	tagsArr := strings.Split(tags, ";")
+
+	t := time.Now()
+	currentTimeStr := t.Format("2006-01-02 15:04:05")
+
+	for _, t := range tagsArr {
+		if t == "" {
+			continue
+		}
+
+		var insertTag = models.InsertValues{
+			"article_id": strconv.FormatInt(articleID, 10),
+			"name":       t,
+			"created_at": currentTimeStr,
+		}
+
+		_, err := articletag.Instance.Create(insertTag)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
