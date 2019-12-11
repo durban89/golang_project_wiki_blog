@@ -99,17 +99,23 @@ func (p *ModelProperty) Create(data InsertValues) (int64, error) {
 
 // Update 更新
 func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, error) {
-	var updateString = update.MergeUpdate()
-	var whereString = where.MergeWhere()
+	updateString, args := update.MergeUpdate()
+	whereString, whereValue := where.MergeWhere()
+
+	for _, v := range whereValue {
+		args = append(args, v)
+	}
 
 	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", p.TableName, updateString, whereString)
 
+	fmt.Println(sql)
+	fmt.Println(args)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec()
+	res, err := stmt.Exec(args...)
 	if err != nil {
 		return 0, err
 	}
@@ -124,7 +130,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 
 // Delete 指定条件的数据
 func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
-	var whereString = where.MergeWhere()
+	whereString, whereValue := where.MergeWhere()
 
 	sql := fmt.Sprintf("DELETE FROM %s WHERE %s", p.TableName, whereString)
 	stmt, err := Conn.Prepare(sql)
@@ -132,7 +138,7 @@ func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 		return 0, err
 	}
 
-	res, err := stmt.Exec()
+	res, err := stmt.Exec(whereValue...)
 	if err != nil {
 		return 0, err
 	}
@@ -149,12 +155,12 @@ func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, limit int64) ([]SelectResult, error) {
 	var selectString = s.MergeSelect()
 
-	var whereString = where.MergeWhere()
+	whereString, whereValue := where.MergeWhere()
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
 		selectString, p.TableName, whereString, offset, limit)
 
-	rows, err := Conn.Query(sql)
+	rows, err := Conn.Query(sql, whereValue...)
 
 	result := []SelectResult{}
 
@@ -183,29 +189,15 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 	var selectString = s.MergeSelect()
 
-	var whereString = where.MergeWhere()
+	whereString, whereValue := where.MergeWhere()
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
 
-	rows, err := Conn.Query(sql)
+	rows, err := Conn.Query(sql, whereValue...)
 
 	if err != nil {
 		return err
 	}
-
-	// columns, err := rows.Columns()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Println(columns)
-
-	// columnTypes, err := rows.ColumnTypes()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Println(columnTypes)
 
 	selectField := s.MergeSelectValue()
 
@@ -220,35 +212,76 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 	return nil
 }
 
-// MergeWhere 合并where条件
-func (w WhereValues) MergeWhere() string {
-	where := []string{}
-	if len(w) == 0 {
-		return "1=1"
+// SortedKeys WhereValues
+func (w WhereValues) SortedKeys() []string {
+	sortedKeys := make([]string, 0)
+	for k := range w {
+		sortedKeys = append(sortedKeys, k)
 	}
 
-	for k, v := range w {
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
+}
+
+// MergeWhere 合并where条件
+func (w WhereValues) MergeWhere() (string, []interface{}) {
+	where := []string{}
+	value := make([]interface{}, len(w))
+
+	if len(w) == 0 {
+		return "1=1", nil
+	}
+
+	sortedKeys := w.SortedKeys()
+
+	var j = 0
+	for _, k := range sortedKeys {
+
+		v := w[k]
 		if v.Operator == "" {
-			s := fmt.Sprintf("%s = %s", k, v.Value)
+			s := fmt.Sprintf("%s = ?", k)
 			where = append(where, s)
 		} else {
-			s := fmt.Sprintf("%s %s %s", k, v.Operator, v.Value)
+			s := fmt.Sprintf("%s %s ?", k, v.Operator)
 			where = append(where, s)
 		}
+
+		value[j] = v.Value
+		j++
 	}
 
-	return strings.Join(where, " AND ")
+	return strings.Join(where, " AND "), value
+}
+
+// SortedKeys UpdateValues
+func (u UpdateValues) SortedKeys() []string {
+	sortedKeys := make([]string, 0)
+	for k := range u {
+		sortedKeys = append(sortedKeys, k)
+	}
+
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
 }
 
 // MergeUpdate 合并update条件
-func (u UpdateValues) MergeUpdate() string {
+func (u UpdateValues) MergeUpdate() (string, []interface{}) {
+	sortedKeys := u.SortedKeys()
+
 	update := []string{}
-	for k, v := range u {
-		s := fmt.Sprintf("%s = '%s'", k, v)
+	value := make([]interface{}, len(u))
+
+	var j = 0
+	for _, k := range sortedKeys {
+		s := fmt.Sprintf("%s = ?", k)
 		update = append(update, s)
+		value[j] = u[k]
+		j++
 	}
 
-	return strings.Join(update, ", ")
+	return strings.Join(update, ", "), value
 }
 
 // MergeInsert 合并Insert值

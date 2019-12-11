@@ -4,10 +4,11 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-11 14:04:36
+ * @Last Modified time: 2019-12-11 14:57:42
  */
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -46,6 +47,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 			"category_id": categoryID,
 			"updated_at":  currentTimeStr,
 		}
+
 		where := models.WhereValues{
 			"autokid": models.WhereCondition{
 				Operator: "=",
@@ -56,9 +58,12 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		_, err := article.Instance.Update(update, where)
 
 		if err != nil {
+			fmt.Println(err)
 			http.Redirect(w, r, helpers.BackWithQuery(r, "err_msg=更新失败"), http.StatusInternalServerError)
 			return
 		}
+
+		fmt.Println("update to here")
 
 		// tags 更新
 		updateTag(id, tags)

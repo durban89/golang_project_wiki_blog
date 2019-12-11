@@ -4,13 +4,12 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:54:35
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-09 20:56:48
+ * @Last Modified time: 2019-12-11 14:45:41
  */
 
 import (
 	"database/sql"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/durban89/wiki/helpers"
@@ -65,11 +64,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	whereTag := models.WhereValues{
 		"article_id": models.WhereCondition{
 			Operator: "=",
-			Value:    strconv.FormatInt(articleID, 10),
+			Value:    id,
 		},
 	}
 
-	tags, err := articletag.Instance.Query(selectTagField, whereTag, 1, 100)
+	tags, err := articletag.Instance.Query(selectTagField, whereTag, 0, 100)
 
 	if err != nil {
 		http.NotFound(w, r)
