@@ -122,15 +122,17 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 	return affect, nil
 }
 
-// Delete 删除数据
-func (p *ModelProperty) Delete(id int64) (int64, error) {
-	sql := fmt.Sprintf("DELETE FROM %s WHERE autokid=?", p.TableName)
+// Delete 指定条件的数据
+func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
+	var whereString = where.MergeWhere()
+
+	sql := fmt.Sprintf("DELETE FROM %s WHERE %s", p.TableName, whereString)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.Exec(id)
+	res, err := stmt.Exec()
 	if err != nil {
 		return 0, err
 	}

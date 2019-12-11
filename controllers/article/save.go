@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-09 19:27:31
+ * @Last Modified time: 2019-12-11 14:04:36
  */
 
 import (
@@ -36,10 +36,15 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	t := time.Now()
+	currentTimeStr := t.Format("2006-01-02 15:04:05")
+
 	if id != "" {
 		update := models.UpdateValues{
-			"title":   title,
-			"content": content,
+			"title":       title,
+			"content":     content,
+			"category_id": categoryID,
+			"updated_at":  currentTimeStr,
 		}
 		where := models.WhereValues{
 			"autokid": models.WhereCondition{
@@ -54,10 +59,10 @@ func Save(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, helpers.BackWithQuery(r, "err_msg=更新失败"), http.StatusInternalServerError)
 			return
 		}
-	} else {
-		t := time.Now()
-		currentTimeStr := t.Format("2006-01-02 15:04:05")
 
+		// tags 更新
+		updateTag(id, tags)
+	} else {
 		insert := models.InsertValues{
 			"title":       title,
 			"content":     content,
@@ -98,6 +103,44 @@ func saveTag(articleID int64, tags string) {
 
 		var insertTag = models.InsertValues{
 			"article_id": strconv.FormatInt(articleID, 10),
+			"name":       t,
+			"created_at": currentTimeStr,
+		}
+
+		_, err := articletag.Instance.Create(insertTag)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func updateTag(articleID string, tags string) {
+	deleteWhere := models.WhereValues{
+		"article_id": models.WhereCondition{
+			Operator: "=",
+			Value:    articleID,
+		},
+	}
+
+	_, err := articletag.Instance.Delete(deleteWhere)
+
+	if err != nil {
+		panic(err)
+	}
+
+	tagsArr := strings.Split(tags, ";")
+
+	t := time.Now()
+	currentTimeStr := t.Format("2006-01-02 15:04:05")
+
+	for _, t := range tagsArr {
+		if t == "" {
+			continue
+		}
+
+		var insertTag = models.InsertValues{
+			"article_id": articleID,
 			"name":       t,
 			"created_at": currentTimeStr,
 		}
