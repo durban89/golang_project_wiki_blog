@@ -6,18 +6,25 @@
     <title>{{.Title}}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" >
     <link rel="stylesheet" href="/static/bower_components/editor.md/css/editormd.min.css" />
+    <link rel="stylesheet" href="/static/css/blog.css" />
     <link rel="stylesheet" href="/static/css/main.css" />
   </head>
   
   <body>
     {{ template "nav" }}
-    <div class="container">
+    <div class="container blog-post">
       <div class="col-md-12">
         <div class="text-center">
           <h1>{{.Title}}</h1>
+          <p class="blog-post-meta">
+            <span>December 23, 2013 by <a href="">Jacob</a></span>
+          </p>
         </div>
         
-        <p>[<a href="/articles/update/?id={{ .Autokid }}">更新</a>][<a href="/articles/delete/?id={{ .Autokid }}">删除</a>]</p>
+        <p>
+          <span>[<a href="/articles/update/?id={{ .Autokid }}">更新</a>]</span>
+          <span>[<a href="/articles/delete/?id={{ .Autokid }}">删除</a>]</span>
+        </p>
 
         <div id="content-view">
           <textarea style="display:none;">{{ .Content }}</textarea>
@@ -29,6 +36,7 @@
         </div>
       </div>
     </div>
+    {{ template "footer" }}
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
