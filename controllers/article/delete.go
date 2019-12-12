@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:55:36
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-12 16:43:12
+ * @Last Modified time: 2019-12-12 16:52:52
  */
 
 import (
@@ -43,7 +43,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(
 			w,
 			r,
-			helpers.BackWithQuery(r, "操作失败"),
+			helpers.RedirectWithMsg(r, "操作失败"),
 			http.StatusSeeOther,
 		)
 		return

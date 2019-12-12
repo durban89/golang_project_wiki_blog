@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-12 15:54:58
+ * @Last Modified time: 2019-12-12 16:53:13
  */
 
 import (
@@ -33,7 +33,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 	tags := r.FormValue("tags")
 
 	if title == "" || content == "" || categoryID == "" || tags == "" {
-		http.Redirect(w, r, helpers.BackWithQuery(r, "参数异常"), http.StatusSeeOther)
+		http.Redirect(w, r, helpers.RedirectWithMsg(r, "参数异常"), http.StatusSeeOther)
 		return
 	}
 
@@ -59,7 +59,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			fmt.Println(err)
-			http.Redirect(w, r, helpers.BackWithQuery(r, "更新失败"), http.StatusInternalServerError)
+			http.Redirect(w, r, helpers.RedirectWithMsg(r, "更新失败"), http.StatusInternalServerError)
 			return
 		}
 
@@ -81,7 +81,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		saveTag(insertID, tags)
 
 		if err != nil {
-			http.Redirect(w, r, helpers.BackWithQuery(r, "添加失败"), http.StatusSeeOther)
+			http.Redirect(w, r, helpers.RedirectWithMsg(r, "添加失败"), http.StatusSeeOther)
 			return
 		}
 
