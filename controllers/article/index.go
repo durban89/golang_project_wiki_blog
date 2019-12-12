@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:13
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-02 18:46:45
+ * @Last Modified time: 2019-12-12 16:50:08
  */
 
 import (
@@ -17,8 +17,8 @@ import (
 	"github.com/durban89/wiki/models/article"
 )
 
-// Item 列表
-func Item(w http.ResponseWriter, r *http.Request) {
+// Index 默认页面
+func Index(w http.ResponseWriter, r *http.Request) {
 	var siteName string
 	cookie, err := r.Cookie("site_name_cookie")
 
