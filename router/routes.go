@@ -21,7 +21,7 @@ func Routes() {
 	GET("/articles/delete/", article.Delete)
 	GET("/articles/view/", article.View)
 	GET("/articles/error", article.Error)
-	GET("/articles/", article.Item)
+	GET("/articles/", article.Index)
 	POST("/articles/save/", article.Save)
 
 	// XML文件操作
@@ -37,7 +37,7 @@ func Routes() {
 	GET("/postFile/", controllers.PostFileHandler)
 
 	// 首页
-	GET("/", welcome.Home)
+	GET("/", welcome.Index)
 	GET("/login/", welcome.Login)
 
 	// 静态文件路由

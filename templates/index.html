@@ -1,13 +1,7 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>首页 - Wiki</title>
-  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/css/blog.css" />
-</head>
+{{ template "header" .}}
 
 <body>
   {{ template "nav" }}
@@ -18,7 +12,8 @@
         <h3 class="pb-3 mb-4 font-italic border-bottom">
           From the Firehose
         </h3>
-
+  
+        {{ if .Data }}
         {{range .Data}}
         <div class="blog-post">
           <h2 class="blog-post-title">
@@ -32,6 +27,7 @@
             <a href="#">Mark</a>
           </p>
         </div>
+        {{end}}
         {{end}}
 
         <nav class="blog-pagination">

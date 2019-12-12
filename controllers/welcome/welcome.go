@@ -31,12 +31,6 @@ type XMLServers struct {
 
 var appSession *session.Manager
 
-// Home 首页
-func Home(w http.ResponseWriter, r *http.Request) {
-	helpers.Render(w, "index.html", nil)
-	return
-}
-
 // ProcessXML 处理XML
 func ProcessXML(w http.ResponseWriter, r *http.Request) {
 	v := &XMLServers{
