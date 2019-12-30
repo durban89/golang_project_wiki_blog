@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:54:35
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-11 14:45:41
+ * @Last Modified time: 2019-12-30 17:19:01
  */
 
 import (
@@ -82,7 +82,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 视图渲染
-	helpers.Render(w, "update.html", struct {
+	helpers.Render(w, "article/update.html", struct {
 		Autokid    int64
 		Title      string
 		Content    string

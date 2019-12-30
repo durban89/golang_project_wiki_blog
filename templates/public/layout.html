@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <title>{{ template "title" }}</title>
+  {{ template "before_link" .}}
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css">
+  {{ template "after_link" .}}
+  <link rel="stylesheet" href="/static/css/blog.css" />
+</head>
+<body>
+  {{ template "nav" .}}
+  {{ template "content" .}}
+  {{ template "footer" }}
+  
+  {{ template "before_script" .}}
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+  <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  {{ template "after_script" .}}
+</body>
+
+</html>

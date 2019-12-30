@@ -157,7 +157,7 @@ func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, l
 
 	whereString, whereValue := where.MergeWhere()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT %d, %d",
+	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s ORDER BY autokid DESC LIMIT %d, %d",
 		selectString, p.TableName, whereString, offset, limit)
 
 	rows, err := Conn.Query(sql, whereValue...)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/durban89/wiki/controllers"
 	"github.com/durban89/wiki/controllers/article"
+	"github.com/durban89/wiki/controllers/auth"
 	"github.com/durban89/wiki/controllers/welcome"
 )
 
@@ -15,6 +16,10 @@ import (
 //
 func Routes() {
 	// 添加路由配置
+	// Auth login/register
+	GET("/auth/login/", auth.Login)
+	POST("/auth/login/submit", auth.Login)
+
 	// 文章
 	GET("/articles/create/", article.Create)
 	GET("/articles/update/", article.Update)
@@ -38,10 +43,13 @@ func Routes() {
 
 	// 首页
 	GET("/", welcome.Index)
-	GET("/login/", welcome.Login)
 
 	// 静态文件路由
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
+	})
+
+	http.HandleFunc("/favicon.ico/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/favicon.ico")
 	})
 }

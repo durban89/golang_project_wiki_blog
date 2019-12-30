@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ var TemplatesFiles []string
 var CommonTemplatesFiles []string
 
 func init() {
+	log.Println("init template")
 	lookupFiles()
 }
 
@@ -43,6 +45,8 @@ func lookupFiles() {
 						CommonTemplatesFiles = append(CommonTemplatesFiles, TemplateDir+"/"+fileDirName+"/"+newFilename)
 					}
 				}
+			} else {
+				findTemplate(fileDirName, TemplateDir)
 			}
 
 		} else {
@@ -52,5 +56,22 @@ func lookupFiles() {
 			}
 		}
 
+	}
+}
+
+func findTemplate(fileDirName string, baseDir string) {
+	newDirFiles, err := ioutil.ReadDir(baseDir + "/" + fileDirName)
+	if err != nil {
+		log.Println(err)
+		log.Println("Empty Dir:" + baseDir + "/" + fileDirName)
+	}
+
+	for _, newFile := range newDirFiles {
+		newFilename := newFile.Name()
+		if newFile.IsDir() {
+			findTemplate(newFilename, baseDir+"/"+fileDirName)
+		} else if strings.HasSuffix(newFilename, ".html") {
+			TemplatesFiles = append(TemplatesFiles, baseDir+"/"+fileDirName+"/"+newFilename)
+		}
 	}
 }

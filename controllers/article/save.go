@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-12 16:53:13
+ * @Last Modified time: 2019-12-30 18:42:19
  */
 
 import (
@@ -81,7 +81,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		saveTag(insertID, tags)
 
 		if err != nil {
-			http.Redirect(w, r, helpers.RedirectWithMsg(r, "添加失败"), http.StatusSeeOther)
+			http.Redirect(w, r, helpers.RedirectWithMsg(r, "添加失败"), http.StatusFound)
 			return
 		}
 
@@ -89,9 +89,9 @@ func Save(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if id == "" {
-		http.Redirect(w, r, "/articles/view/", http.StatusSeeOther)
+		http.Redirect(w, r, "/articles/view/", http.StatusFound)
 	} else {
-		http.Redirect(w, r, "/articles/view/?id="+id, http.StatusSeeOther)
+		http.Redirect(w, r, "/articles/view/?id="+id, http.StatusFound)
 	}
 }
 

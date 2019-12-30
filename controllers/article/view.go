@@ -4,12 +4,13 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:27
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-12 16:42:25
+ * @Last Modified time: 2019-12-30 18:40:28
  */
 
 import (
 	"database/sql"
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/durban89/wiki/helpers"
@@ -20,6 +21,17 @@ import (
 
 // View 文章详情
 func View(w http.ResponseWriter, r *http.Request) {
+
+	session, error := SessionManager.SessionStart(w, r)
+
+	if error != nil {
+		log.Println(error)
+		http.Error(w, "Session启动失败", 500)
+		return
+	}
+
+	userID := session.Get("user_id")
+
 	id := r.URL.Query().Get("id")
 
 	if id == "" {
@@ -74,6 +86,7 @@ func View(w http.ResponseWriter, r *http.Request) {
 	tags, err := articletag.Instance.Query(selectTagField, whereTag, 0, 100)
 
 	if err != nil {
+		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
@@ -85,13 +98,14 @@ func View(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 视图渲染
-	helpers.Render(w, "view.html", struct {
+	helpers.Render(w, "article/view.html", struct {
 		Autokid    string
 		Title      string
 		Content    template.HTML
 		CategoryID int64
 		CreatedAt  string
 		Tags       []string
+		userID     interface{}
 	}{
 		Autokid:    id,
 		Title:      title,
@@ -99,6 +113,7 @@ func View(w http.ResponseWriter, r *http.Request) {
 		CategoryID: categoryID,
 		CreatedAt:  createdAt,
 		Tags:       tagsArr,
+		userID:     userID,
 	})
 
 	return

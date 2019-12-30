@@ -3,8 +3,8 @@ package controllers
 import (
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -15,12 +15,14 @@ import (
 	_ "github.com/durban89/wiki/session/providers/memory"
 )
 
+// Server Server
 type Server struct {
 	XMLName    xml.Name `xml:"server"`
 	ServerName string   `xml:"serverName"`
 	ServerIP   string   `xml:"serverIP"`
 }
 
+// XMLServers XMLServers
 type XMLServers struct {
 	XMLName     xml.Name `xml:"servers"`
 	Version     string   `xml:"version,attr"`
@@ -28,8 +30,10 @@ type XMLServers struct {
 	Description string   `xml:",innerxml"`
 }
 
-var appSession *session.Manager
+// SessionManager Session管理器
+var SessionManager *session.Manager
 
+// WelcomeProcessXML WelcomeProcessXML
 func WelcomeProcessXML(w http.ResponseWriter, r *http.Request) {
 	v := &XMLServers{
 		Version: "1",
@@ -56,6 +60,7 @@ func WelcomeProcessXML(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// WelcomeXML WelcomeXML
 func WelcomeXML(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open(config.TemplateDir + "/server.xml")
 	if err != nil {
@@ -79,43 +84,14 @@ func WelcomeXML(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, v)
 }
 
-// WelcomeLogin 欢迎登录页
-func WelcomeLogin(w http.ResponseWriter, r *http.Request) {
-	session, err := appSession.SessionStart(w, r)
-	if err != nil {
-		fmt.Fprintf(w, "session error")
-		return
-	}
-
-	count := session.Get("count")
-	if count == nil {
-		session.Set("count", 1)
-	} else {
-		session.Set("count", count.(int)+1)
-	}
-
-	t, err := template.ParseFiles(config.TemplateDir + "/login.html")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = t.Execute(w, session.Get("count"))
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
 func init() {
+	log.Println("init welcome")
 	var err error
-	appSession, err = session.GetManager("memory", "sessionid", 3600)
+	SessionManager, err = session.GetManager("memory", "sessionid", 3600)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	go appSession.SessionGC()
+	go SessionManager.SessionGC()
 }

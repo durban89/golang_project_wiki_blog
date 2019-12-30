@@ -12,10 +12,7 @@ var templates *template.Template
 
 func init() {
 	templates = template.Must(template.ParseFiles(
-		config.TemplateDir+"/edit.html",
-		config.TemplateDir+"/view.html",
-		config.TemplateDir+"/upload.html",
-		config.TemplateDir+"/item.html"))
+		config.TemplateDir + "/index.html"))
 }
 
 // RenderTemplate 渲染模板
