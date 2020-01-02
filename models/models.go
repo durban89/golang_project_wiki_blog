@@ -23,7 +23,8 @@ type ModelMethod interface {
 
 // ModelProperty 属性
 type ModelProperty struct {
-	TableName string
+	TableName  string
+	QueryFiled SelectValues
 }
 
 // WhereCondition where条件
@@ -109,7 +110,7 @@ func (p *ModelProperty) Create(data InsertValues) (int64, error) {
 // Update 更新
 func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, error) {
 	updateString, args := update.MergeUpdate()
-	whereString, whereValue := where.MergeWhere()
+	whereString, whereValue := where.mergeWhere()
 
 	for _, v := range whereValue {
 		args = append(args, v)
@@ -139,7 +140,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 
 // Delete 指定条件的数据
 func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
-	whereString, whereValue := where.MergeWhere()
+	whereString, whereValue := where.mergeWhere()
 
 	sql := fmt.Sprintf("DELETE FROM %s WHERE %s", p.TableName, whereString)
 	stmt, err := Conn.Prepare(sql)
@@ -167,9 +168,9 @@ func (p *ModelProperty) Query(
 	order OrderValues,
 	offset int64,
 	limit int64) ([]SelectResult, error) {
-	var selectString = s.MergeSelect()
+	var selectString = s.mergeSelect()
 
-	whereString, whereValue := where.MergeWhere()
+	whereString, whereValue := where.mergeWhere()
 
 	orderBy := order.MergeOrder()
 
@@ -192,7 +193,7 @@ func (p *ModelProperty) Query(
 		return result, err
 	}
 
-	selectField := s.MergeSelectValue()
+	selectField := s.mergeSelectValue()
 
 	for rows.Next() {
 		err = rows.Scan(selectField...)
@@ -201,7 +202,7 @@ func (p *ModelProperty) Query(
 			return result, err
 		}
 
-		tmpResult := s.MergeResultValues()
+		tmpResult := s.mergeResultValues()
 
 		result = append(result, tmpResult)
 	}
@@ -210,34 +211,40 @@ func (p *ModelProperty) Query(
 }
 
 // QueryOne 获取一条数据
-func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
-	var selectString = s.MergeSelect()
+func (p *ModelProperty) QueryOne(ele []string, where WhereValues) (SelectResult, error) {
+	s := p.QueryFiled
+	s = s.filterSelect(ele)
 
-	whereString, whereValue := where.MergeWhere()
+	var selectString = s.mergeSelect()
+
+	whereString, whereValue := where.mergeWhere()
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
 
-	log.Println(sql)
-	log.Println(selectString)
-	log.Println(whereString)
-	log.Println(whereValue)
 	rows, err := Conn.Query(sql, whereValue...)
 
 	if err != nil {
-		return err
+		log.Println(err)
+		return nil, err
 	}
 
-	selectField := s.MergeSelectValue()
+	selectField := s.mergeSelectValue()
+
+	result := []SelectResult{}
 
 	for rows.Next() {
 		err = rows.Scan(selectField...)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
+
+		tmpResult := s.mergeResultValues()
+
+		result = append(result, tmpResult)
 	}
 
-	return nil
+	return result[0], nil
 }
 
 // SortedKeys OrderValues
@@ -287,8 +294,7 @@ func (w WhereValues) SortedKeys() []string {
 	return sortedKeys
 }
 
-// MergeWhere 合并where条件
-func (w WhereValues) MergeWhere() (string, []interface{}) {
+func (w WhereValues) mergeWhere() (string, []interface{}) {
 	where := []string{}
 	value := make([]interface{}, len(w))
 
@@ -369,8 +375,32 @@ func (i InsertValues) MergeInsert() (string, string, []interface{}) {
 	return fmt.Sprintf("(%s)", strings.Join(name, ", ")), fmt.Sprintf("(%s)", strings.Join(preValue, ", ")), value
 }
 
-// MergeSelect  合并select条件
-func (s SelectValues) MergeSelect() string {
+func contains(arr []string, val string) bool {
+	for i := 0; i < len(arr); i++ {
+		if arr[i] == val {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterSelect 过滤需要的
+func (s SelectValues) filterSelect(ele []string) SelectValues {
+	log.Println(s)
+	if ele != nil {
+		for k := range s {
+			if !contains(ele, k) {
+				delete(s, k)
+			}
+		}
+	}
+
+	log.Println(s)
+
+	return s
+}
+
+func (s SelectValues) mergeSelect() string {
 	sortedKeys := s.SortSelect()
 
 	value := []string{}
@@ -382,8 +412,7 @@ func (s SelectValues) MergeSelect() string {
 	return strings.Join(value, ", ")
 }
 
-// MergeSelectValue  取出select条件的值
-func (s SelectValues) MergeSelectValue() []interface{} {
+func (s SelectValues) mergeSelectValue() []interface{} {
 	sortedKeys := s.SortSelect()
 
 	selectField := make([]interface{}, len(s))
@@ -420,8 +449,7 @@ func (i InsertValues) SortSelect() []string {
 	return sortedKeys
 }
 
-// MergeResultValues 查询结果的值合并
-func (s SelectValues) MergeResultValues() SelectResult {
+func (s SelectValues) mergeResultValues() SelectResult {
 	var tmpResult = SelectResult{}
 
 	var i = 0

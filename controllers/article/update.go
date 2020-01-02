@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:54:35
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 18:53:29
+ * @Last Modified time: 2020-01-02 17:08:50
  */
 
 import (
@@ -13,10 +13,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
 	"github.com/durban89/wiki/models/articletag"
+	"github.com/durban89/wiki/views"
 )
 
 // Update 更新文章
@@ -44,15 +44,25 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	var articleID int64
 	var title string
 	var content sql.NullString
+	var summary sql.NullString
 	var categoryID int64
 	var createdAt string
 
-	selectField := models.SelectValues{
-		"autokid":     &articleID,
-		"title":       &title,
-		"content":     &content,
-		"category_id": &categoryID,
-		"created_at":  &createdAt,
+	// selectField := models.SelectValues{
+	// 	"autokid":     &articleID,
+	// 	"title":       &title,
+	// 	"content":     &content,
+	// 	"summary":     &summary,
+	// 	"category_id": &categoryID,
+	// 	"created_at":  &createdAt,
+	// }
+	selectField := []string{
+		"autokid",
+		"title",
+		"content",
+		"summary",
+		"category_id",
+		"created_at",
 	}
 
 	where := models.WhereValues{
@@ -62,7 +72,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := article.Instance.QueryOne(selectField, where)
+	_, err := article.Instance.QueryOne(selectField, where)
 
 	if err != nil {
 		http.NotFound(w, r)
@@ -106,10 +116,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	log.Println(cate)
 
 	// 视图渲染
-	helpers.Render(w, "article/update.html", struct {
+	views.Render(w, "article/update.html", struct {
 		Autokid    int64
 		Title      string
 		Content    string
+		Summary    string
 		CategoryID int64
 		CreatedAt  string
 		Tags       string
@@ -118,6 +129,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		Autokid:    articleID,
 		Title:      title,
 		Content:    content.String,
+		Summary:    summary.String,
 		CategoryID: categoryID,
 		CreatedAt:  createdAt,
 		Tags:       strings.Join(tagsArr, ";"),

@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/durban89/wiki/helpers"
-
 	"github.com/durban89/wiki/config"
+	"github.com/durban89/wiki/views"
 
 	"github.com/durban89/wiki/session"
 	// memory session provider
@@ -97,7 +96,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		session.Set("count", count.(int)+1)
 	}
 
-	helpers.Render(w, "login.html", session.Get("count"))
+	views.Render(w, "login.html", session.Get("count"))
 
 	return
 }

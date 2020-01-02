@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-30 17:49:57
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2020-01-02 10:07:36
+ * @Last Modified time: 2020-01-02 17:21:42
  */
 
 import (
@@ -19,6 +19,9 @@ import (
 	"github.com/durban89/wiki/models/articlecategory"
 	"github.com/durban89/wiki/models/articletag"
 	"github.com/durban89/wiki/session"
+
+	// memory session provider
+	_ "github.com/durban89/wiki/session/providers/memory"
 )
 
 // SessionManager 初始化session
@@ -98,17 +101,7 @@ func updateTag(articleID string, tags string) {
 	}
 }
 
-func getArticleCategory(categoryID string) map[string]string {
-	var id string
-	var name string
-
-	category := make(map[string]string)
-
-	selectValue := models.SelectValues{
-		"autokid": &id,
-		"name":    &name,
-	}
-
+func getArticleCategory(categoryID string) models.SelectResult {
 	whereValue := models.WhereValues{
 		"autokid": models.WhereCondition{
 			Operator: "=",
@@ -116,16 +109,14 @@ func getArticleCategory(categoryID string) map[string]string {
 		},
 	}
 
-	err := articlecategory.Instance.QueryOne(selectValue, whereValue)
+	category, err := articlecategory.Instance.QueryOne([]string{
+		"autokid", "name",
+	}, whereValue)
 
 	if err != nil {
+		log.Println(err)
 		return nil
 	}
-
-	category["name"] = name
-	category["id"] = id
-
-	log.Println(category)
 
 	return category
 }
@@ -194,8 +185,8 @@ func getArticleTag(w http.ResponseWriter, r *http.Request, id string) []string {
 	return tagsArr
 }
 
-func getAuthor(authorID string) (map[string]string, error) {
-	author := map[string]string{}
+func getAuthor(authorID string) (models.SelectResult, error) {
+	author := make(models.SelectResult)
 
 	author["username"] = "dpzhang"
 	author["email"] = "admin@126.com"
@@ -203,13 +194,18 @@ func getAuthor(authorID string) (map[string]string, error) {
 
 	return author, nil
 
-	var username string
-	var email string
+	// var username string
+	// var email string
 
-	selectField := models.SelectValues{
-		"username": &username,
-		"email":    &email,
+	selectField := []string{
+		"username",
+		"email",
 	}
+
+	// selectField := models.SelectValues{
+	// 	"username": &username,
+	// 	"email":    &email,
+	// }
 
 	where := models.WhereValues{
 		"autokid": models.WhereCondition{
@@ -218,14 +214,14 @@ func getAuthor(authorID string) (map[string]string, error) {
 		},
 	}
 
-	err := article.Instance.QueryOne(selectField, where)
+	author, err := article.Instance.QueryOne(selectField, where)
 
 	if err != nil {
 		return nil, err
 	}
 
-	author["username"] = username
-	author["email"] = email
+	// author["username"] = username
+	// author["email"] = email
 	author["authorID"] = authorID
 
 	return author, nil

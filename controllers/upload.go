@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/durban89/wiki/helpers"
+	"github.com/durban89/wiki/views"
 )
 
 // UploadHandler 上传文件
@@ -27,7 +28,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
 		token := fmt.Sprintf("%x", h.Sum(nil))
 		p.Token = token
-		helpers.RenderTemplate(w, "upload", p)
+		views.Render(w, "upload.html", p)
 	} else {
 		fmt.Println("Uploading ....")
 		r.ParseMultipartForm(32 << 20)

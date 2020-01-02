@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:55:36
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 17:05:40
+ * @Last Modified time: 2020-01-02 17:09:30
  */
 
 import (
@@ -37,10 +37,14 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articleID := ""
+	// articleID := ""
 
-	var selectValues = models.SelectValues{
-		"autokid": &articleID,
+	// var selectValues = models.SelectValues{
+	// 	"autokid": &articleID,
+	// }
+
+	var selectValues = []string{
+		"autokid",
 	}
 
 	var whereValues = models.WhereValues{
@@ -50,9 +54,9 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := article.Instance.QueryOne(selectValues, whereValues)
+	_, err := article.Instance.QueryOne(selectValues, whereValues)
 
-	if err != nil || articleID == "" {
+	if err != nil {
 		http.Redirect(
 			w,
 			r,

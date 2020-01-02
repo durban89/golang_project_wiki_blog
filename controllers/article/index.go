@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:13
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 17:51:03
+ * @Last Modified time: 2020-01-02 14:37:53
  */
 
 import (
@@ -12,13 +12,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
+	"github.com/durban89/wiki/views"
 )
 
 // Index 默认页面
 func Index(w http.ResponseWriter, r *http.Request) {
+	session, error := SessionManager.SessionStart(w, r)
+	if error != nil {
+		http.Error(w, "SessionStart Fail", 403)
+		return
+	}
+
+	userID := session.Get("user_id")
+
 	var siteName string
 	cookie, err := r.Cookie("site_name_cookie")
 
@@ -35,13 +43,16 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		siteName = cookie.Value
 	}
 
-	// var articleModel article.Article
-
 	var autokid int64
 	var title string
+	var authorID string
+	var created string
+
 	selectField := models.SelectValues{
-		"autokid": &autokid,
-		"title":   &title,
+		"autokid":    &autokid,
+		"title":      &title,
+		"author_id":  &authorID,
+		"created_at": &created,
 	}
 
 	where := models.WhereValues{}
@@ -59,11 +70,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.Render(w, "article/index.html", struct {
+	views.Render(w, "article/index.html", struct {
 		Data   []models.SelectResult
+		UserID interface{}
 		Cookie string
 	}{
 		Data:   qr,
+		UserID: userID,
 		Cookie: siteName,
 	})
 

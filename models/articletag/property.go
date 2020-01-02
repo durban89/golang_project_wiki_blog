@@ -4,7 +4,7 @@ package articletag
  * @Author: durban.zhang
  * @Date:   2019-12-09 16:45:36
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-09 19:13:18
+ * @Last Modified time: 2020-01-02 16:32:09
  */
 
 import "github.com/durban89/wiki/models"
@@ -20,8 +20,21 @@ type Property struct {
 	CreatedAt string
 }
 
+// QueryField 查询字段
+func QueryField() models.SelectValues {
+	p := Property{}
+
+	return models.SelectValues{
+		"autokid":    &p.Autokid,
+		"article_id": &p.ArticleID,
+		"name":       &p.Name,
+		"created_at": &p.CreatedAt,
+	}
+}
+
 func init() {
 	Instance = models.ModelProperty{
-		TableName: "article_tag",
+		TableName:  "article_tag",
+		QueryFiled: QueryField(),
 	}
 }

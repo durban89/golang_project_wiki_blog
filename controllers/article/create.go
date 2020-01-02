@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:55:18
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 18:53:22
+ * @Last Modified time: 2020-01-02 14:37:48
  */
 
 import (
@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
+	"github.com/durban89/wiki/views"
 )
 
 // Create 文件
@@ -41,7 +41,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	log.Println(cate)
 
 	// 视图渲染
-	helpers.Render(w, "article/create.html", struct {
+	views.Render(w, "article/create.html", struct {
 		Msg  string
 		Time string
 		Cate []models.SelectResult

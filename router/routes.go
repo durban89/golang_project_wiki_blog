@@ -3,7 +3,6 @@ package router
 import (
 	"net/http"
 
-	"github.com/durban89/wiki/controllers"
 	"github.com/durban89/wiki/controllers/article"
 	"github.com/durban89/wiki/controllers/auth"
 	"github.com/durban89/wiki/controllers/welcome"
@@ -34,12 +33,12 @@ func Routes() {
 	GET("/xml/", welcome.XML)
 
 	// 其他
-	GET("/json/to/test/", controllers.JsonToTest)
-	GET("/json/process/", controllers.JsonProcess)
-	GET("/json/to/interface/", controllers.JsonToInterface)
-	GET("/json/", controllers.Json)
-	GET("/upload/", controllers.UploadHandler)
-	GET("/postFile/", controllers.PostFileHandler)
+	// GET("/json/to/test/", controllers.JsonToTest)
+	// GET("/json/process/", controllers.JsonProcess)
+	// GET("/json/to/interface/", controllers.JsonToInterface)
+	// GET("/json/", controllers.Json)
+	// GET("/upload/", controllers.UploadHandler)
+	// GET("/postFile/", controllers.PostFileHandler)
 
 	// 首页
 	GET("/", welcome.Index)

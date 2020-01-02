@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 17:43:35
+ * @Last Modified time: 2020-01-02 15:07:08
  */
 
 import (
@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"unicode/utf8"
 
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
@@ -40,11 +41,19 @@ func Save(w http.ResponseWriter, r *http.Request) {
 	id = r.FormValue("id")
 	title := r.FormValue("title")
 	content := r.FormValue("content")
+	summary := r.FormValue("summary")
 	categoryID := r.FormValue("category_id")
 	tags := r.FormValue("tags")
 
-	if title == "" || content == "" || categoryID == "" || tags == "" {
+	if title == "" || content == "" || summary == "" || categoryID == "" || tags == "" {
 		http.Redirect(w, r, helpers.RedirectWithMsg(r, "参数异常"), http.StatusSeeOther)
+		return
+	}
+
+	// 标题长度限制
+	count := utf8.RuneCountInString(title)
+	if count > 30 {
+		http.Redirect(w, r, helpers.RedirectWithMsg(r, "标题长度太长"), http.StatusSeeOther)
 		return
 	}
 
@@ -55,6 +64,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		update := models.UpdateValues{
 			"title":       title,
 			"content":     content,
+			"summary":     summary,
 			"category_id": categoryID,
 			"updated_at":  currentTimeStr,
 		}
@@ -80,8 +90,9 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		insert := models.InsertValues{
 			"title":       title,
 			"content":     content,
+			"summary":     summary,
 			"category_id": categoryID,
-			"author_id":   strconv.Itoa(userID.(int)),
+			"author_id":   userID.(string),
 			"created_at":  currentTimeStr,
 			"updated_at":  currentTimeStr,
 		}

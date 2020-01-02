@@ -40,6 +40,13 @@
         </div>
         
         <div class="form-group">
+          <label for="content">概述</label>
+          <div>
+            <textarea class="form-control" id="summary" name="summary" rows="3">{{ .Summary }}</textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label for="content">内容</label>
           <div id="editormd">
             <textarea class="form-control" id="content" name="content" rows="3" style="display: none">{{ .Content }}</textarea>

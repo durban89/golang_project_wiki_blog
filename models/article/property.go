@@ -13,12 +13,29 @@ type Property struct {
 	Title      string
 	Content    string
 	CategoryID int64
+	AuthorID   int64
 	CreatedAt  string
 	UpdatedAt  string
 }
 
+// QueryField 查询字段
+func QueryField() models.SelectValues {
+	property := Property{}
+
+	return models.SelectValues{
+		"autokid":     &property.Autokid,
+		"title":       &property.Title,
+		"content":     &property.Content,
+		"category_id": &property.CategoryID,
+		"author_id":   &property.AuthorID,
+		"created_at":  &property.CreatedAt,
+		"updated_at":  &property.UpdatedAt,
+	}
+}
+
 func init() {
 	Instance = models.ModelProperty{
-		TableName: "article",
+		TableName:  "article",
+		QueryFiled: QueryField(),
 	}
 }

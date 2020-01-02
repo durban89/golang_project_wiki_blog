@@ -1,18 +1,18 @@
-package helpers
+package views
 
 import (
-	"html/template"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"github.com/durban89/wiki/config"
 )
 
 /*
- * @Author: durban
- * @Date:   2019-12-02 18:42:04
- * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-30 16:38:40
+* @Author: durban.zhang
+* @Date:   2020-01-02 14:36:57
+* @Last Modified by:   durban.zhang
+* @Last Modified time: 2020-01-02 14:37:16
  */
 
 // Render 视图

@@ -11,6 +11,7 @@ import (
 	"github.com/durban89/wiki/config"
 
 	"github.com/durban89/wiki/session"
+
 	// memory session provider
 	_ "github.com/durban89/wiki/session/providers/memory"
 )

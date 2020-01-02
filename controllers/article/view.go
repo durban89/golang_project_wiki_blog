@@ -4,19 +4,17 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:27
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-31 19:00:31
+ * @Last Modified time: 2020-01-02 16:16:03
  */
 
 import (
-	"database/sql"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
+	"github.com/durban89/wiki/views"
 )
 
 // View 文章详情
@@ -39,24 +37,6 @@ func View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var articleID int64
-	var title string
-	var content sql.NullString
-	var createdAt string
-	var categoryID int64
-	var authorID string
-
-	articleID = 0
-
-	selectField := models.SelectValues{
-		"autokid":     &articleID,
-		"title":       &title,
-		"category_id": &categoryID,
-		"author_id":   &authorID,
-		"content":     &content,
-		"created_at":  &createdAt,
-	}
-
 	where := models.WhereValues{
 		"autokid": models.WhereCondition{
 			Operator: "=",
@@ -64,43 +44,40 @@ func View(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := article.Instance.QueryOne(selectField, where)
+	articleModel, err := article.Instance.QueryOne(nil, where)
 
-	if err != nil || articleID == 0 {
+	if err != nil {
+		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
 	tagsArr := getArticleTag(w, r, id)
-	author, err := getAuthor(authorID)
-	category := getArticleCategory(strconv.FormatInt(categoryID, 10))
+	author, err := getAuthor(strconv.FormatInt(articleModel["author_id"].(int64), 10))
 
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "用户信息查询失败", 500)
 		return
 	}
 
+	category := getArticleCategory(strconv.FormatInt(articleModel["category_id"].(int64), 10))
+
 	// 视图渲染
-	helpers.Render(w, "article/view.html", struct {
-		Autokid    string
-		Title      string
-		Content    template.HTML
-		CategoryID int64
-		Category   map[string]string
-		CreatedAt  string
-		Tags       []string
-		UserID     interface{}
-		Author     map[string]string
+	views.Render(w, "article/view.html", struct {
+		Autokid  string
+		Article  models.SelectResult
+		Category models.SelectResult
+		Tags     []string
+		UserID   interface{}
+		Author   models.SelectResult
 	}{
-		Autokid:    id,
-		Title:      title,
-		Content:    template.HTML(content.String),
-		CategoryID: categoryID,
-		Category:   category,
-		CreatedAt:  createdAt,
-		Tags:       tagsArr,
-		UserID:     userID,
-		Author:     author,
+		Autokid:  id,
+		Article:  articleModel,
+		Category: category,
+		Tags:     tagsArr,
+		UserID:   userID,
+		Author:   author,
 	})
 
 	return

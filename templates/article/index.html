@@ -1,11 +1,7 @@
+{{ template "layout.html" .}}
+
 {{ define "title" }}
 Article - Wiki
-{{ end }}
-
-{{ define "before_link" }}
-{{ end }}
-
-{{ define "after_link" }}
 {{ end }}
 
 {{ define "content" }}
@@ -17,26 +13,35 @@ Article - Wiki
           <li class="breadcrumb-item"><a href="/">Home</a></li>
           <li class="breadcrumb-item active" aria-current="page">
             <span>Articles</span>
+            {{ if .UserID}}
+            {{ if gt .UserID "0" }}
             <a class="blog-create-btn" href='/articles/create/'>+</a></li>
+            {{ end }}
+            {{ end }}
         </ol>
       </nav>
     </div>
 
     <div class="col-md-9">
       <h3 class="pb-3 mb-4 font-italic border-bottom">
-        From the Firehose - Cookie - {{ .Cookie }}
+        From the Wiki - Articles
       </h3>
-
+  
+      {{ $userID := .UserID }}
       {{range .Data}}
       <div class="blog-post">
         <h2 class="blog-post-title">
-          {{ .autokid }} - {{ .title }} blog post
+          <span>{{ .title }}</span>
+          {{ if $userID }}
+          {{ if eq $userID .author_id }}
           <a class="btn btn-primary btn-sm" href="/articles/update/?id={{ .autokid }}">update</a>
           <a class="btn btn-primary btn-sm" href="/articles/delete/?id={{ .autokid }}">delete</a>
+          {{ end }}
+          {{ end }}
           <a class="btn btn-primary btn-sm" href="/articles/view/?id={{ .autokid }}">view</a>
         </h2>
         <p class="blog-post-meta">
-          January 1, 2014 by 
+          {{ .created_at }} by 
           <a href="#">Mark</a>
         </p>
       </div>
@@ -53,12 +58,3 @@ Article - Wiki
   </div>
 </div>
 {{ end }}
-
-{{ define "before_script" }}
-{{ end }}
-
-{{ define "after_script" }}
-
-{{ end }}
-
-{{ template "layout.html" .}}

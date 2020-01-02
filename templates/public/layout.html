@@ -8,9 +8,9 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
   <link rel="manifest" href="/static/site.webmanifest">
   <title>{{ template "title" .}}</title>
-  {{ template "before_link" .}}
+  {{ block "before_link" .}}{{ end }}
   <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css">
-  {{ template "after_link" .}}
+  {{ block "after_link" .}}{{ end }}
   <link rel="stylesheet" href="/static/css/blog.css" />
 </head>
 <body>
@@ -18,11 +18,11 @@
   {{ template "content" .}}
   {{ template "footer" .}}
   
-  {{ template "before_script" .}}
+  {{ block "before_script" .}}{{ end }}
   <script src="/static/js/jquery.min.js"></script>
   <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
   <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  {{ template "after_script" .}}
+  {{ block "after_script" .}}{{ end }}
 </body>
 
 </html>

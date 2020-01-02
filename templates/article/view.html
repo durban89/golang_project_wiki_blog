@@ -1,7 +1,7 @@
 {{ template "layout.html" .}}
 
 {{ define "title" }}
-{{ .Title }} - Articles - Wiki
+{{ index .Article "title" }} - Articles - Wiki
 {{ end }}
 
 {{ define "before_link" }}
@@ -15,31 +15,43 @@
 {{ define "content" }}
 <div class="container blog-post-content">
   <div class="col-md-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/articles/">Articles</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+          <span>{{ index .Article "title" }}</span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="col-md-12">
     <div class="text-center">
-      <h1>{{ .Title }}</h1>
+      <h1>{{ index .Article "title" }}</h1>
       <p class="blog-post-meta">
         {{$authorName := index .Author "username"}}
         {{$authorID := index .Author "authorID"}}
-        <span>{{ .CreatedAt }} by <a href="/articles/author/?id={{ $authorID }}">{{ $authorName }}</a></span>
+        <span>{{ index .Article "created_at" }} by <a href="/articles/author/?id={{ $authorID }}">{{ $authorName }}</a></span>
       </p>
     </div>
     {{$authorID := index .Author "authorID"}}
     {{ if .UserID }}
     {{ if eq .UserID $authorID }}
     <p>
-      <span>[<a href="/articles/update/?id={{ .Autokid }}">更新</a>]</span>
-      <span>[<a href="/articles/delete/?id={{ .Autokid }}">删除</a>]</span>
+      <span>[<a href="/articles/update/?id={{ index .Article "autokid" }}">更新</a>]</span>
+      <span>[<a href="/articles/delete/?id={{ index .Article "autokid" }}">删除</a>]</span>
     </p>
     {{ end }}
     {{ end }}
 
     <div id="content-view">
-      <textarea style="display:none;">{{ .Content }}</textarea>
+      <textarea style="display:none;">{{ index .Article "content" }}</textarea>
     </div>
 
     <div>
       {{ $categoryName := index .Category "name" }}
-      <span>分类：<a href='/articles/category/?id={{ .CategoryID }}' title='{{ $categoryName }}'>{{ $categoryName }}</a></span>
+      <span>分类：<a href='/articles/category/?id={{ index .Article "category_id" }}' title='{{ $categoryName }}'>{{ $categoryName }}</a></span>
       <span>标签：{{range .Tags}}<a href='/articles/tag/?name={{.}}' title='{{.}}' style="margin: 0 5px">{{.}}</a>{{end}}</span>
     </div>
   </div>

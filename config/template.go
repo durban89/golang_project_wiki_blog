@@ -17,7 +17,6 @@ var TemplatesFiles []string
 var CommonTemplatesFiles []string
 
 func init() {
-	log.Println("init template")
 	lookupFiles()
 }
 
