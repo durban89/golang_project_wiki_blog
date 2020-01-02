@@ -26,13 +26,15 @@ Article - Wiki
       <h3 class="pb-3 mb-4 font-italic border-bottom">
         From the Wiki - Articles
       </h3>
-  
-      {{ $userID := .UserID }}
+      
+      {{ $userID := .UserID|ToInt64 }}
+
       {{range .Data}}
       <div class="blog-post">
         <h2 class="blog-post-title">
           <span>{{ .title }}</span>
           {{ if $userID }}
+
           {{ if eq $userID .author_id }}
           <a class="btn btn-primary btn-sm" href="/articles/update/?id={{ .autokid }}">update</a>
           <a class="btn btn-primary btn-sm" href="/articles/delete/?id={{ .autokid }}">delete</a>

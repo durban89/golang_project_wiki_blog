@@ -1,11 +1,9 @@
 {{ template "layout.html" .}}
 
 {{ define "title" }}
-更新[{{.Title}}] - Article - Wiki
+更新[{{ index .Article "title" }}] - Article - Wiki
 {{ end }}
 
-{{ define "before_link" }}
-{{ end }}
 
 {{ define "after_link" }}
 <link rel="stylesheet" href="/static/bower_components/editor.md/css/editormd.min.css" />
@@ -27,36 +25,36 @@
       </nav>
     </div>
     <div>
-      <form method="POST" action="/articles/save/?id={{ .Autokid }}">
-        <input name="id" value="{{ .Autokid }}" type="hidden" />
+      <form method="POST" action="/articles/save/?id={{ index .Article "autokid" }}">
+        <input name="id" value='{{ index .Article "autokid" }}' type="hidden" />
         <div class="form-group">
           <label for="title">标题</label>
-          <input type="text" name="title" class="form-control" id="title" placeholder="输入文章标题" value="{{ .Title }}" />
+          <input type="text" name="title" class="form-control" id="title" placeholder="输入文章标题" value='{{ index .Article "title" }}' />
         </div>
 
         <div class="form-group">
           <label for="title">创建时间</label>
-          <input type="text" name="created_at" class="form-control" id="created_at" placeholder="创建时间" value="{{ .CreatedAt }}" />
+          <input type="text" name="created_at" class="form-control" id="created_at" placeholder="创建时间" value="{{ index .Article "created_at" }}" />
         </div>
         
         <div class="form-group">
           <label for="content">概述</label>
           <div>
-            <textarea class="form-control" id="summary" name="summary" rows="3">{{ .Summary }}</textarea>
+            <textarea class="form-control" id="summary" name="summary" rows="3">{{ index .Article "summary" }}</textarea>
           </div>
         </div>
 
         <div class="form-group">
           <label for="content">内容</label>
           <div id="editormd">
-            <textarea class="form-control" id="content" name="content" rows="3" style="display: none">{{ .Content }}</textarea>
+            <textarea class="form-control" id="content" name="content" rows="3" style="display: none">{{ index .Article "content" }}</textarea>
           </div>
         </div>
 
         <div class="form-group">
           <label for="category">分类</label>
           <select class="form-control" id="category_id" name="category_id">
-            {{ $categoryID := .CategoryID }}
+            {{ $categoryID := index .Article "category_id" }}
             {{range .Cate}}
             <option value="{{ .autokid }}" {{if eq .autokid $categoryID}}selected{{end}}>{{ .name }}</option>
             {{ end }}

@@ -4,11 +4,11 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:13
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2020-01-02 14:37:53
+ * @Last Modified time: 2020-01-02 17:47:25
  */
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -43,18 +43,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		siteName = cookie.Value
 	}
 
-	var autokid int64
-	var title string
-	var authorID string
-	var created string
-
-	selectField := models.SelectValues{
-		"autokid":    &autokid,
-		"title":      &title,
-		"author_id":  &authorID,
-		"created_at": &created,
-	}
-
 	where := models.WhereValues{}
 	order := models.OrderValues{
 		"autokid": models.OrderCondition{
@@ -62,10 +50,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	qr, err := article.Instance.Query(selectField, where, order, 0, 10)
+	qr, err := article.Instance.Query(nil, where, order, 0, 10)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}

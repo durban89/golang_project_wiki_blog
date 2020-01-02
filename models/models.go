@@ -12,6 +12,14 @@ import (
 	"github.com/durban89/wiki/db"
 )
 
+const (
+	createSQL   = "INSERT INTO %s %s VALUES %s"
+	updateSQL   = "UPDATE %s SET %s WHERE %s"
+	querySQL    = "SELECT %s FROM %s WHERE %s %s LIMIT %d, %d"
+	queryOneSQL = "SELECT %s FROM %s WHERE %s LIMIT 0, 1"
+	deleteSQL   = "DELETE FROM %s WHERE %s"
+)
+
 // ModelMethod 接口
 type ModelMethod interface {
 	Query(offset int64, limit int64) (map[string]string, error)
@@ -74,10 +82,6 @@ func init() {
 
 	// PostgreSQL
 	// Conn = db.PostgreSQLDB
-
-	// var blogInstance BlogModel
-	// blogInstance.Where()
-	// blogInstance.Update()
 }
 
 func (e ModelError) Error() string {
@@ -87,7 +91,7 @@ func (e ModelError) Error() string {
 // Create 添加数据
 func (p *ModelProperty) Create(data InsertValues) (int64, error) {
 	name, preValue, value := data.MergeInsert()
-	sql := fmt.Sprintf("INSERT INTO %s %s VALUES %s", p.TableName, name, preValue)
+	sql := fmt.Sprintf(createSQL, p.TableName, name, preValue)
 
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
@@ -109,14 +113,14 @@ func (p *ModelProperty) Create(data InsertValues) (int64, error) {
 
 // Update 更新
 func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, error) {
-	updateString, args := update.MergeUpdate()
+	updateString, args := update.mergeUpdate()
 	whereString, whereValue := where.mergeWhere()
 
 	for _, v := range whereValue {
 		args = append(args, v)
 	}
 
-	sql := fmt.Sprintf("UPDATE %s SET %s WHERE %s", p.TableName, updateString, whereString)
+	sql := fmt.Sprintf(updateSQL, p.TableName, updateString, whereString)
 
 	fmt.Println(sql)
 	fmt.Println(args)
@@ -142,7 +146,7 @@ func (p *ModelProperty) Update(update UpdateValues, where WhereValues) (int64, e
 func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 	whereString, whereValue := where.mergeWhere()
 
-	sql := fmt.Sprintf("DELETE FROM %s WHERE %s", p.TableName, whereString)
+	sql := fmt.Sprintf(deleteSQL, p.TableName, whereString)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
@@ -163,19 +167,22 @@ func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 
 // Query 获取数据
 func (p *ModelProperty) Query(
-	s SelectValues,
+	ele []string,
 	where WhereValues,
 	order OrderValues,
 	offset int64,
 	limit int64) ([]SelectResult, error) {
+
+	s := p.QueryFiled
+	s = s.filterSelect(ele)
+
 	var selectString = s.mergeSelect()
 
 	whereString, whereValue := where.mergeWhere()
 
 	orderBy := order.MergeOrder()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s "+
-		"WHERE %s %s LIMIT %d, %d",
+	sql := fmt.Sprintf(querySQL,
 		selectString,
 		p.TableName,
 		whereString,
@@ -219,7 +226,7 @@ func (p *ModelProperty) QueryOne(ele []string, where WhereValues) (SelectResult,
 
 	whereString, whereValue := where.mergeWhere()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
+	sql := fmt.Sprintf(queryOneSQL, selectString, p.TableName, whereString)
 
 	rows, err := Conn.Query(sql, whereValue...)
 
@@ -335,8 +342,7 @@ func (u UpdateValues) SortedKeys() []string {
 	return sortedKeys
 }
 
-// MergeUpdate 合并update条件
-func (u UpdateValues) MergeUpdate() (string, []interface{}) {
+func (u UpdateValues) mergeUpdate() (string, []interface{}) {
 	sortedKeys := u.SortedKeys()
 
 	update := []string{}

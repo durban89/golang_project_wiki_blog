@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-30 17:49:57
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2020-01-02 17:21:42
+ * @Last Modified time: 2020-01-02 18:35:38
  */
 
 import (
@@ -122,14 +122,6 @@ func getArticleCategory(categoryID string) models.SelectResult {
 }
 
 func getArticleCategories() []models.SelectResult {
-	var id int64
-	var name string
-
-	selectValue := models.SelectValues{
-		"autokid": &id,
-		"name":    &name,
-	}
-
 	whereValue := models.WhereValues{}
 	orderValue := models.OrderValues{
 		"autokid": models.OrderCondition{
@@ -137,25 +129,21 @@ func getArticleCategories() []models.SelectResult {
 		},
 	}
 
-	category, err := articlecategory.Instance.Query(selectValue, whereValue, orderValue, 0, 1000)
+	category, err := articlecategory.Instance.Query([]string{
+		"autokid",
+		"name",
+	}, whereValue, orderValue, 0, 1000)
 
 	if err != nil {
 		return nil
 	}
-
-	log.Println(category)
 
 	return category
 }
 
 func getArticleTag(w http.ResponseWriter, r *http.Request, id string) []string {
 	// tag query
-	var tagName string
 	var tagsArr = []string{}
-
-	selectTagField := models.SelectValues{
-		"name": &tagName,
-	}
 
 	whereTag := models.WhereValues{
 		"article_id": models.WhereCondition{
@@ -170,7 +158,9 @@ func getArticleTag(w http.ResponseWriter, r *http.Request, id string) []string {
 		},
 	}
 
-	tags, err := articletag.Instance.Query(selectTagField, whereTag, order, 0, 100)
+	tags, err := articletag.Instance.Query([]string{
+		"name",
+	}, whereTag, order, 0, 100)
 
 	if err != nil {
 		log.Println(err)
@@ -194,18 +184,10 @@ func getAuthor(authorID string) (models.SelectResult, error) {
 
 	return author, nil
 
-	// var username string
-	// var email string
-
 	selectField := []string{
 		"username",
 		"email",
 	}
-
-	// selectField := models.SelectValues{
-	// 	"username": &username,
-	// 	"email":    &email,
-	// }
 
 	where := models.WhereValues{
 		"autokid": models.WhereCondition{

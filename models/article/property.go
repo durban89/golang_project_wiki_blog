@@ -12,6 +12,7 @@ type Property struct {
 	Autokid    int64
 	Title      string
 	Content    string
+	Summary    string
 	CategoryID int64
 	AuthorID   int64
 	CreatedAt  string
@@ -26,6 +27,7 @@ func QueryField() models.SelectValues {
 		"autokid":     &property.Autokid,
 		"title":       &property.Title,
 		"content":     &property.Content,
+		"summary":     &property.Summary,
 		"category_id": &property.CategoryID,
 		"author_id":   &property.AuthorID,
 		"created_at":  &property.CreatedAt,
