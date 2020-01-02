@@ -386,7 +386,6 @@ func contains(arr []string, val string) bool {
 
 // FilterSelect 过滤需要的
 func (s SelectValues) filterSelect(ele []string) SelectValues {
-	log.Println(s)
 	if ele != nil {
 		for k := range s {
 			if !contains(ele, k) {
@@ -394,8 +393,6 @@ func (s SelectValues) filterSelect(ele []string) SelectValues {
 			}
 		}
 	}
-
-	log.Println(s)
 
 	return s
 }
