@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:55:36
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-12 16:52:52
+ * @Last Modified time: 2019-12-31 17:05:40
  */
 
 import (
@@ -17,6 +17,19 @@ import (
 
 // Delete 删除操作
 func Delete(w http.ResponseWriter, r *http.Request) {
+	session, error := SessionManager.SessionStart(w, r)
+	if error != nil {
+		http.Error(w, "SessionStart Fail", 403)
+		return
+	}
+
+	userID := session.Get("user_id")
+
+	if userID == nil {
+		http.Redirect(w, r, "/auth/login", http.StatusFound)
+		return
+	}
+
 	var id = r.URL.Query().Get("id")
 
 	if id == "" {

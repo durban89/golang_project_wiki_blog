@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -31,8 +32,16 @@ type WhereCondition struct {
 	Value    string
 }
 
+// OrderCondition order 条件
+type OrderCondition struct {
+	OrderBy string
+}
+
 // WhereValues where条件值
 type WhereValues map[string]WhereCondition
+
+// OrderValues order by 条件值
+type OrderValues map[string]OrderCondition
 
 // UpdateValues update条件值
 type UpdateValues map[string]string
@@ -152,13 +161,28 @@ func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 }
 
 // Query 获取数据
-func (p *ModelProperty) Query(s SelectValues, where WhereValues, offset int64, limit int64) ([]SelectResult, error) {
+func (p *ModelProperty) Query(
+	s SelectValues,
+	where WhereValues,
+	order OrderValues,
+	offset int64,
+	limit int64) ([]SelectResult, error) {
 	var selectString = s.MergeSelect()
 
 	whereString, whereValue := where.MergeWhere()
 
-	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s ORDER BY autokid DESC LIMIT %d, %d",
-		selectString, p.TableName, whereString, offset, limit)
+	orderBy := order.MergeOrder()
+
+	sql := fmt.Sprintf("SELECT %s FROM %s "+
+		"WHERE %s %s LIMIT %d, %d",
+		selectString,
+		p.TableName,
+		whereString,
+		orderBy,
+		offset,
+		limit)
+
+	log.Println(sql)
 
 	rows, err := Conn.Query(sql, whereValue...)
 
@@ -193,6 +217,10 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 
 	sql := fmt.Sprintf("SELECT %s FROM %s WHERE %s LIMIT 0, 1", selectString, p.TableName, whereString)
 
+	log.Println(sql)
+	log.Println(selectString)
+	log.Println(whereString)
+	log.Println(whereValue)
 	rows, err := Conn.Query(sql, whereValue...)
 
 	if err != nil {
@@ -210,6 +238,41 @@ func (p *ModelProperty) QueryOne(s SelectValues, where WhereValues) error {
 	}
 
 	return nil
+}
+
+// SortedKeys OrderValues
+func (o OrderValues) SortedKeys() []string {
+	sortedKeys := make([]string, 0)
+	for k := range o {
+		sortedKeys = append(sortedKeys, k)
+	}
+
+	sort.Strings(sortedKeys)
+
+	return sortedKeys
+}
+
+// MergeOrder 合并order by条件值
+func (o OrderValues) MergeOrder() string {
+	order := []string{}
+
+	if len(o) == 0 {
+		return ""
+	}
+
+	sortedKeys := o.SortedKeys()
+
+	var j = 0
+	for _, k := range sortedKeys {
+		v := o[k]
+
+		s := fmt.Sprintf("%s %s", k, v.OrderBy)
+		order = append(order, s)
+
+		j++
+	}
+
+	return " ORDER BY " + strings.Join(order, " , ")
 }
 
 // SortedKeys WhereValues

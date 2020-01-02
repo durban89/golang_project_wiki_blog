@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
   <link rel="manifest" href="/static/site.webmanifest">
-  <title>{{ template "title" }}</title>
+  <title>{{ template "title" .}}</title>
   {{ template "before_link" .}}
   <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css">
   {{ template "after_link" .}}
@@ -16,7 +16,7 @@
 <body>
   {{ template "nav" .}}
   {{ template "content" .}}
-  {{ template "footer" }}
+  {{ template "footer" .}}
   
   {{ template "before_script" .}}
   <script src="/static/js/jquery.min.js"></script>

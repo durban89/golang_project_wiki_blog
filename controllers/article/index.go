@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:13
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-30 17:15:17
+ * @Last Modified time: 2019-12-31 17:51:03
  */
 
 import (
@@ -45,8 +45,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	where := models.WhereValues{}
+	order := models.OrderValues{
+		"autokid": models.OrderCondition{
+			OrderBy: "DESC",
+		},
+	}
 
-	qr, err := article.Instance.Query(selectField, where, 0, 10)
+	qr, err := article.Instance.Query(selectField, where, order, 0, 10)
 
 	if err != nil {
 		fmt.Println(err)
@@ -54,7 +59,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.Render(w, "article/item.html", struct {
+	helpers.Render(w, "article/index.html", struct {
 		Data   []models.SelectResult
 		Cookie string
 	}{

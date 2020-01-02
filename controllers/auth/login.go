@@ -2,7 +2,7 @@
 * @Author: durban.zhang
 * @Date:   2019-12-30 10:15:18
 * @Last Modified by:   durban.zhang
-* @Last Modified time: 2019-12-30 18:06:57
+* @Last Modified time: 2019-12-31 18:38:17
  */
 
 package auth
@@ -37,7 +37,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if email == "admin@126.com" && password == "123" {
 
 			if err == nil {
-				session.Set("user_id", 1)
+				session.Set("user_id", "1")
 			}
 
 			http.Redirect(w, r, fmt.Sprintf("/?msg=登录成功"), http.StatusFound)

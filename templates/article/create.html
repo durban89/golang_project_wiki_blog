@@ -55,11 +55,9 @@
         <div class="form-group">
           <label for="category">分类</label>
           <select class="form-control" id="category_id" name="category_id">
-            <option value="1">1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+            {{range .Cate}}
+            <option value="{{ .autokid }}">{{ .name }}</option>
+            {{ end }}
           </select>
 
         </div>

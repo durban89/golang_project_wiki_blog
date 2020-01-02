@@ -4,24 +4,35 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-30 18:42:19
+ * @Last Modified time: 2019-12-31 17:43:35
  */
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/models/articletag"
 )
 
 // Save 存储
 func Save(w http.ResponseWriter, r *http.Request) {
+	session, error := SessionManager.SessionStart(w, r)
+	if error != nil {
+		http.Error(w, "SessionStart Fail", 403)
+		return
+	}
+
+	userID := session.Get("user_id")
+
+	if userID == nil {
+		http.Redirect(w, r, "/auth/login", http.StatusFound)
+		return
+	}
+
 	r.ParseForm()
 
 	var id string
@@ -58,12 +69,10 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		_, err := article.Instance.Update(update, where)
 
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(w, r, helpers.RedirectWithMsg(r, "更新失败"), http.StatusInternalServerError)
 			return
 		}
-
-		fmt.Println("update to here")
 
 		// tags 更新
 		updateTag(id, tags)
@@ -72,6 +81,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 			"title":       title,
 			"content":     content,
 			"category_id": categoryID,
+			"author_id":   strconv.Itoa(userID.(int)),
 			"created_at":  currentTimeStr,
 			"updated_at":  currentTimeStr,
 		}
@@ -81,6 +91,7 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		saveTag(insertID, tags)
 
 		if err != nil {
+			log.Println(err)
 			http.Redirect(w, r, helpers.RedirectWithMsg(r, "添加失败"), http.StatusFound)
 			return
 		}
@@ -92,68 +103,5 @@ func Save(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/articles/view/", http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/articles/view/?id="+id, http.StatusFound)
-	}
-}
-
-func saveTag(articleID int64, tags string) {
-	tagsArr := strings.Split(tags, ";")
-
-	t := time.Now()
-	currentTimeStr := t.Format("2006-01-02 15:04:05")
-
-	for _, t := range tagsArr {
-		if t == "" {
-			continue
-		}
-
-		var insertTag = models.InsertValues{
-			"article_id": strconv.FormatInt(articleID, 10),
-			"name":       t,
-			"created_at": currentTimeStr,
-		}
-
-		_, err := articletag.Instance.Create(insertTag)
-
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-func updateTag(articleID string, tags string) {
-	deleteWhere := models.WhereValues{
-		"article_id": models.WhereCondition{
-			Operator: "=",
-			Value:    articleID,
-		},
-	}
-
-	_, err := articletag.Instance.Delete(deleteWhere)
-
-	if err != nil {
-		panic(err)
-	}
-
-	tagsArr := strings.Split(tags, ";")
-
-	t := time.Now()
-	currentTimeStr := t.Format("2006-01-02 15:04:05")
-
-	for _, t := range tagsArr {
-		if t == "" {
-			continue
-		}
-
-		var insertTag = models.InsertValues{
-			"article_id": articleID,
-			"name":       t,
-			"created_at": currentTimeStr,
-		}
-
-		_, err := articletag.Instance.Create(insertTag)
-
-		if err != nil {
-			panic(err)
-		}
 	}
 }

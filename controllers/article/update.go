@@ -4,11 +4,12 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:54:35
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-30 17:19:01
+ * @Last Modified time: 2019-12-31 18:53:29
  */
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strings"
 
@@ -20,6 +21,19 @@ import (
 
 // Update 更新文章
 func Update(w http.ResponseWriter, r *http.Request) {
+	session, error := SessionManager.SessionStart(w, r)
+	if error != nil {
+		http.Error(w, "SessionStart Fail", 403)
+		return
+	}
+
+	userID := session.Get("user_id")
+
+	if userID == nil {
+		http.Redirect(w, r, "/auth/login", http.StatusFound)
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 
 	if id == "" {
@@ -68,7 +82,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tags, err := articletag.Instance.Query(selectTagField, whereTag, 0, 100)
+	order := models.OrderValues{
+		"autokid": models.OrderCondition{
+			OrderBy: "DESC",
+		},
+	}
+
+	tags, err := articletag.Instance.Query(selectTagField, whereTag, order, 0, 100)
 
 	if err != nil {
 		http.NotFound(w, r)
@@ -81,6 +101,10 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		tagsArr = append(tagsArr, v["name"].(string))
 	}
 
+	cate := getArticleCategories()
+
+	log.Println(cate)
+
 	// 视图渲染
 	helpers.Render(w, "article/update.html", struct {
 		Autokid    int64
@@ -89,6 +113,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		CategoryID int64
 		CreatedAt  string
 		Tags       string
+		Cate       []models.SelectResult
 	}{
 		Autokid:    articleID,
 		Title:      title,
@@ -96,6 +121,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		CategoryID: categoryID,
 		CreatedAt:  createdAt,
 		Tags:       strings.Join(tagsArr, ";"),
+		Cate:       cate,
 	})
 
 	return

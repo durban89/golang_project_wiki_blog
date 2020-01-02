@@ -1,3 +1,5 @@
+{{ template "layout.html" .}}
+
 {{ define "title" }}
 更新[{{.Title}}] - Article - Wiki
 {{ end }}
@@ -47,11 +49,10 @@
         <div class="form-group">
           <label for="category">分类</label>
           <select class="form-control" id="category_id" name="category_id">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+            {{ $categoryID := .CategoryID }}
+            {{range .Cate}}
+            <option value="{{ .autokid }}" {{if eq .autokid $categoryID}}selected{{end}}>{{ .name }}</option>
+            {{ end }}
           </select>
         </div>
 
@@ -96,5 +97,3 @@
   });
 </script>
 {{ end }}
-
-{{ template "layout.html" .}}

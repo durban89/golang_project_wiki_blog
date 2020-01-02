@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-12-02 10:53:27
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2019-12-30 18:40:28
+ * @Last Modified time: 2019-12-31 19:00:31
  */
 
 import (
@@ -12,11 +12,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/durban89/wiki/helpers"
 	"github.com/durban89/wiki/models"
 	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/models/articletag"
 )
 
 // View 文章详情
@@ -44,6 +44,7 @@ func View(w http.ResponseWriter, r *http.Request) {
 	var content sql.NullString
 	var createdAt string
 	var categoryID int64
+	var authorID string
 
 	articleID = 0
 
@@ -51,6 +52,7 @@ func View(w http.ResponseWriter, r *http.Request) {
 		"autokid":     &articleID,
 		"title":       &title,
 		"category_id": &categoryID,
+		"author_id":   &authorID,
 		"content":     &content,
 		"created_at":  &createdAt,
 	}
@@ -69,32 +71,13 @@ func View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// tag query
-	var tagName string
-
-	selectTagField := models.SelectValues{
-		"name": &tagName,
-	}
-
-	whereTag := models.WhereValues{
-		"article_id": models.WhereCondition{
-			Operator: "=",
-			Value:    id,
-		},
-	}
-
-	tags, err := articletag.Instance.Query(selectTagField, whereTag, 0, 100)
+	tagsArr := getArticleTag(w, r, id)
+	author, err := getAuthor(authorID)
+	category := getArticleCategory(strconv.FormatInt(categoryID, 10))
 
 	if err != nil {
-		log.Println(err)
-		http.NotFound(w, r)
+		http.Error(w, "用户信息查询失败", 500)
 		return
-	}
-
-	var tagsArr = []string{}
-
-	for _, v := range tags {
-		tagsArr = append(tagsArr, v["name"].(string))
 	}
 
 	// 视图渲染
@@ -103,17 +86,21 @@ func View(w http.ResponseWriter, r *http.Request) {
 		Title      string
 		Content    template.HTML
 		CategoryID int64
+		Category   map[string]string
 		CreatedAt  string
 		Tags       []string
-		userID     interface{}
+		UserID     interface{}
+		Author     map[string]string
 	}{
 		Autokid:    id,
 		Title:      title,
 		Content:    template.HTML(content.String),
 		CategoryID: categoryID,
+		Category:   category,
 		CreatedAt:  createdAt,
 		Tags:       tagsArr,
-		userID:     userID,
+		UserID:     userID,
+		Author:     author,
 	})
 
 	return
