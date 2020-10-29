@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/durban89/wiki/db"
+	"wiki/db"
 )
 
 const (

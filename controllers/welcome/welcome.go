@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/durban89/wiki/config"
-	"github.com/durban89/wiki/views"
+	"wiki/config"
+	"wiki/views"
 
-	"github.com/durban89/wiki/session"
+	"wiki/session"
 	// memory session provider
-	_ "github.com/durban89/wiki/session/providers/memory"
+	_ "wiki/session/providers/memory"
 )
 
 type Server struct {

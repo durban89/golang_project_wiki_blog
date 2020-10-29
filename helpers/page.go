@@ -11,7 +11,7 @@ type Page struct {
 	Title  string
 	Body   []byte
 	Script string
-	Html   template.HTML
+	HTML   template.HTML
 	Token  string
 }
 

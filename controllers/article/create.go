@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/views"
+	"wiki/models"
+	"wiki/views"
 )
 
 // Create 文件

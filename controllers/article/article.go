@@ -14,14 +14,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/models/articlecategory"
-	"github.com/durban89/wiki/models/articletag"
-	"github.com/durban89/wiki/session"
+	"wiki/models"
+	"wiki/models/article"
+	ArticleCategory "wiki/models/article/category"
+	ArticleTag "wiki/models/article/tag"
+	"wiki/session"
 
 	// memory session provider
-	_ "github.com/durban89/wiki/session/providers/memory"
+	_ "wiki/session/providers/memory"
 )
 
 // SessionManager 初始化session
@@ -55,7 +55,7 @@ func saveTag(articleID int64, tags string) {
 			"created_at": currentTimeStr,
 		}
 
-		_, err := articletag.Instance.Create(insertTag)
+		_, err := ArticleTag.Instance.Create(insertTag)
 
 		if err != nil {
 			panic(err)
@@ -71,7 +71,7 @@ func updateTag(articleID string, tags string) {
 		},
 	}
 
-	_, err := articletag.Instance.Delete(deleteWhere)
+	_, err := ArticleTag.Instance.Delete(deleteWhere)
 
 	if err != nil {
 		panic(err)
@@ -93,7 +93,7 @@ func updateTag(articleID string, tags string) {
 			"created_at": currentTimeStr,
 		}
 
-		_, err := articletag.Instance.Create(insertTag)
+		_, err := ArticleTag.Instance.Create(insertTag)
 
 		if err != nil {
 			panic(err)
@@ -109,7 +109,7 @@ func getArticleCategory(categoryID string) models.SelectResult {
 		},
 	}
 
-	category, err := articlecategory.Instance.QueryOne([]string{
+	category, err := ArticleCategory.Instance.QueryOne([]string{
 		"autokid", "name",
 	}, whereValue)
 
@@ -129,7 +129,7 @@ func getArticleCategories() []models.SelectResult {
 		},
 	}
 
-	category, err := articlecategory.Instance.Query([]string{
+	category, err := ArticleCategory.Instance.Query([]string{
 		"autokid",
 		"name",
 	}, whereValue, orderValue, 0, 1000)
@@ -158,7 +158,7 @@ func getArticleTag(w http.ResponseWriter, r *http.Request, id string) []string {
 		},
 	}
 
-	tags, err := articletag.Instance.Query([]string{
+	tags, err := ArticleTag.Instance.Query([]string{
 		"name",
 	}, whereTag, order, 0, 100)
 

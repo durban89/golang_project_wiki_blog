@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/views"
+	"wiki/models"
+	"wiki/models/article"
+	"wiki/views"
 )
 
 // View 文章详情

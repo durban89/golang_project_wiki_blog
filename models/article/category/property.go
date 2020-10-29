@@ -1,4 +1,4 @@
-package articlecategory
+package category
 
 /*
  * @Author: durban.zhang
@@ -7,7 +7,9 @@ package articlecategory
  * @Last Modified time: 2020-01-02 17:21:50
  */
 
-import "github.com/durban89/wiki/models"
+import (
+	"wiki/models"
+)
 
 // Instance 实例
 var Instance models.ModelProperty

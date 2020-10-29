@@ -10,7 +10,7 @@ package auth
 import (
 	"log"
 
-	"github.com/durban89/wiki/session"
+	"wiki/session"
 )
 
 // SessionManager Session管理器

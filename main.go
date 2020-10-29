@@ -4,8 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
-
-	"github.com/durban89/wiki/router"
+	"wiki/router"
 )
 
 func main() {

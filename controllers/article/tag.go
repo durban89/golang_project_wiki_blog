@@ -3,7 +3,7 @@ package article
 import (
 	"net/http"
 
-	"github.com/durban89/wiki/views"
+	"wiki/views"
 )
 
 // Tag 标签

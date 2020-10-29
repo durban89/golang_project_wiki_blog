@@ -12,10 +12,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/models/articletag"
-	"github.com/durban89/wiki/views"
+	"wiki/models"
+	"wiki/models/article"
+	ArticleTag "wiki/models/article/tag"
+	"wiki/views"
 )
 
 // Update 更新文章
@@ -75,7 +75,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tags, err := articletag.Instance.Query([]string{
+	tags, err := ArticleTag.Instance.Query([]string{
 		"name",
 	}, whereTag, order, 0, 100)
 

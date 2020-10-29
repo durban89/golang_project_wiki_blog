@@ -10,7 +10,7 @@ package welcome
 import (
 	"net/http"
 
-	"github.com/durban89/wiki/views"
+	"wiki/views"
 )
 
 // Index 首页

@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/models/article"
-	"github.com/durban89/wiki/views"
+	"wiki/models"
+	"wiki/models/article"
+	"wiki/views"
 )
 
 // Index 默认页面

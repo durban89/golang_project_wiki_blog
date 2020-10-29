@@ -1,7 +1,7 @@
 package article
 
 import (
-	"github.com/durban89/wiki/models"
+	"wiki/models"
 )
 
 // Instance 实例

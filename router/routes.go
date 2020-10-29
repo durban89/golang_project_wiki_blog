@@ -3,9 +3,9 @@ package router
 import (
 	"net/http"
 
-	"github.com/durban89/wiki/controllers/article"
-	"github.com/durban89/wiki/controllers/auth"
-	"github.com/durban89/wiki/controllers/welcome"
+	"wiki/controllers/article"
+	"wiki/controllers/auth"
+	"wiki/controllers/welcome"
 )
 
 // Routes 操作

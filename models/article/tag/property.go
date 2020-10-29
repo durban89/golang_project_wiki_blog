@@ -7,7 +7,7 @@ package articletag
  * @Last Modified time: 2020-01-02 16:32:09
  */
 
-import "github.com/durban89/wiki/models"
+import "wiki/models"
 
 // Instance 实例
 var Instance models.ModelProperty

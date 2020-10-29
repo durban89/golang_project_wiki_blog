@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/durban89/wiki/session"
+	"wiki/session"
 )
 
 // Store 存储

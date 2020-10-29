@@ -2,15 +2,16 @@ package models
 
 import (
 	"testing"
-
-	"github.com/durban89/wiki/helpers"
 )
 
-func TestCreate(t *testing.T) {
-	p := helpers.Page{
-		Title: "Test Create",
-	}
-	id, err := Create(&p)
+func Test_Create(t *testing.T) {
+	// p := helpers.Page{
+	// 	Title: "Test Create",
+	// }
+
+	mp := ModelProperty{}
+
+	id, err := mp.Create(InsertValues{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -18,12 +19,14 @@ func TestCreate(t *testing.T) {
 	t.Log(id)
 }
 
-func TestUpdate(t *testing.T) {
-	p := helpers.Page{
-		Title: "Test Update",
-	}
+func Test_Update(t *testing.T) {
+	// p := helpers.Page{
+	// 	Title: "Test Update",
+	// }
 
-	effect, err := Update(&p, 2)
+	mp := ModelProperty{}
+
+	effect, err := mp.Update(UpdateValues{}, WhereValues{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -31,8 +34,10 @@ func TestUpdate(t *testing.T) {
 	t.Log(effect)
 }
 
-func TestDelete(t *testing.T) {
-	effect, err := Delete(2)
+func Test_Delete(t *testing.T) {
+	mp := ModelProperty{}
+
+	effect, err := mp.Delete(WhereValues{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,7 +46,9 @@ func TestDelete(t *testing.T) {
 }
 
 func TestQueryOne(t *testing.T) {
-	row, err := QueryOne()
+	mp := ModelProperty{}
+
+	row, err := mp.QueryOne([]string{"user_Id"}, WhereValues{})
 
 	if err != nil {
 		t.Error(err)
@@ -62,8 +69,10 @@ func TestQueryOne(t *testing.T) {
 }
 
 // TestQuery 测试获取数据
-func TestQuery(t *testing.T) {
-	row, err := Query()
+func Test_Query(t *testing.T) {
+	p := ModelProperty{}
+
+	row, err := p.Query([]string{"user_id"}, WhereValues{}, OrderValues{}, 0, 10)
 
 	if err != nil {
 		t.Error(err)

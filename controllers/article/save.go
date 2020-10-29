@@ -14,9 +14,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/durban89/wiki/helpers"
-	"github.com/durban89/wiki/models"
-	"github.com/durban89/wiki/models/article"
+	"wiki/helpers"
+	"wiki/models"
+	"wiki/models/article"
 )
 
 // Save 存储

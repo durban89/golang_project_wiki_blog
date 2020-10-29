@@ -12,8 +12,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/durban89/wiki/helpers"
-	"github.com/durban89/wiki/views"
+	"wiki/helpers"
+	"wiki/views"
 )
 
 // Login Page

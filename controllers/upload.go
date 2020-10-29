@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/durban89/wiki/helpers"
-	"github.com/durban89/wiki/views"
+	"wiki/helpers"
+	"wiki/views"
 )
 
 // UploadHandler 上传文件

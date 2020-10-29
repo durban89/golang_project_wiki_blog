@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/durban89/wiki/config"
+	"wiki/config"
 
-	"github.com/durban89/wiki/session"
+	"wiki/session"
 
 	// memory session provider
-	_ "github.com/durban89/wiki/session/providers/memory"
+	_ "wiki/session/providers/memory"
 )
 
 // Server Server

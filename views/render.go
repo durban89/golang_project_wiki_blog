@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/durban89/wiki/config"
+	"wiki/config"
 )
 
 /*
