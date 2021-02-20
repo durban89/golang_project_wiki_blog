@@ -35,10 +35,7 @@ Article - Wiki
           <span>{{ .title }}</span>
           {{ if $userID }}
 
-          {{ if eq $userID .author_id }}
-          <a class="btn btn-primary btn-sm" href="/articles/update/?id={{ .autokid }}">update</a>
-          <a class="btn btn-primary btn-sm" href="/articles/delete/?id={{ .autokid }}">delete</a>
-          {{ end }}
+          
           {{ end }}
           <a class="btn btn-primary btn-sm" href="/articles/view/?id={{ .autokid }}">view</a>
         </h2>

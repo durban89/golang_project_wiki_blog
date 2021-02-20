@@ -4,7 +4,7 @@ package article
  * @Author: durban.zhang
  * @Date:   2019-11-29 14:05:25
  * @Last Modified by:   durban.zhang
- * @Last Modified time: 2020-01-02 15:07:08
+ * @Last Modified time: 2021-02-08 18:51:40
  */
 
 import (
@@ -28,6 +28,8 @@ func Save(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := session.Get("user_id")
+
+	session.Get("asd")
 
 	if userID == nil {
 		http.Redirect(w, r, "/auth/login", http.StatusFound)

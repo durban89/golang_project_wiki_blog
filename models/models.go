@@ -147,6 +147,7 @@ func (p *ModelProperty) Delete(where WhereValues) (int64, error) {
 	whereString, whereValue := where.mergeWhere()
 
 	sql := fmt.Sprintf(deleteSQL, p.TableName, whereString)
+	log.Println(sql)
 	stmt, err := Conn.Prepare(sql)
 	if err != nil {
 		return 0, err
